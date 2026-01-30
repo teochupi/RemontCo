@@ -1,6 +1,6 @@
 # RemontCo - Trusted Construction Services Marketplace
 
-![RemontCo Logo](/Logo_Chupetlov_2.png)
+![RemontCo Logo](Logo_Chupetlov_2.png)
 
 ## 🏗️ About RemontCo
 
