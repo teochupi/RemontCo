@@ -40,7 +40,7 @@ async function loadRecentJobs() {
         *,
         category:service_categories(name_bg, name_en)
       `)
-      .eq('status', 'open')
+      .eq('status', 'approved')
       .order('created_at', { ascending: false })
       .limit(3);
 
@@ -94,118 +94,118 @@ async function loadRecentJobs() {
  * Load and display service categories
  */
 async function loadCategories() {
-    const grid = document.getElementById('categories-grid');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    if (!grid) return;
+  const grid = document.getElementById('categories-grid');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  if (!grid) return;
 
-    try {
-        const { data: categories, error } = await supabase
-            .from('service_categories')
-            .select('*')
-            .eq('is_active', true);
+  try {
+    const { data: categories, error } = await supabase
+      .from('service_categories')
+      .select('*')
+      .eq('is_active', true);
 
-        if (error) throw error;
+    if (error) throw error;
 
-        grid.innerHTML = '';
+    grid.innerHTML = '';
 
-        if (categories && categories.length > 0) {
-            categories.forEach(category => {
-                grid.appendChild(createCategoryCard(category));
-            });
-            initCategorySlider(grid, prevBtn, nextBtn);
-        } else {
-            grid.innerHTML = '<div class="col-12 text-center"><p>No categories available yet.</p></div>';
-        }
-    } catch (error) {
-        console.error('Error loading categories:', error);
-        const FALLBACK_CATEGORIES = [
-            { slug: 'interior-renovation', name_en: 'Interior Renovation', name_bg: 'Вътрешни Ремонти', icon: 'bi-house-heart' },
-            { slug: 'plumbing', name_en: 'Plumbing', name_bg: 'ВиК Услуги', icon: 'bi-droplet-fill' },
-            { slug: 'electrical', name_en: 'Electrical Services', name_bg: 'Ел. Услуги', icon: 'bi-lightning-charge-fill' },
-            { slug: 'painting', name_en: 'Painting', name_bg: 'Бояджийски', icon: 'bi-paint-bucket' },
-            { slug: 'cleaning', name_en: 'Cleaning', name_bg: 'Почистване', icon: 'bi-stars' },
-            { slug: 'roofing', name_en: 'Roofing', name_bg: 'Покриви', icon: 'bi-house-fill' },
-            { slug: 'construction', name_en: 'Construction', name_bg: 'Строителство', icon: 'bi-building-fill-add' },
-            { slug: 'interior-design', name_en: 'Interior Design', name_bg: 'Дизайн', icon: 'bi-palette' }
-        ];
-
-        grid.innerHTML = '';
-        FALLBACK_CATEGORIES.forEach(category => {
-            grid.appendChild(createCategoryCard(category));
-        });
-        initCategorySlider(grid, prevBtn, nextBtn);
+    if (categories && categories.length > 0) {
+      categories.forEach(category => {
+        grid.appendChild(createCategoryCard(category));
+      });
+      initCategorySlider(grid, prevBtn, nextBtn);
+    } else {
+      grid.innerHTML = '<div class="col-12 text-center"><p>No categories available yet.</p></div>';
     }
+  } catch (error) {
+    console.error('Error loading categories:', error);
+    const FALLBACK_CATEGORIES = [
+      { slug: 'interior-renovation', name_en: 'Interior Renovation', name_bg: 'Вътрешни Ремонти', icon: 'bi-house-heart' },
+      { slug: 'plumbing', name_en: 'Plumbing', name_bg: 'ВиК Услуги', icon: 'bi-droplet-fill' },
+      { slug: 'electrical', name_en: 'Electrical Services', name_bg: 'Ел. Услуги', icon: 'bi-lightning-charge-fill' },
+      { slug: 'painting', name_en: 'Painting', name_bg: 'Бояджийски', icon: 'bi-paint-bucket' },
+      { slug: 'cleaning', name_en: 'Cleaning', name_bg: 'Почистване', icon: 'bi-stars' },
+      { slug: 'roofing', name_en: 'Roofing', name_bg: 'Покриви', icon: 'bi-house-fill' },
+      { slug: 'construction', name_en: 'Construction', name_bg: 'Строителство', icon: 'bi-building-fill-add' },
+      { slug: 'interior-design', name_en: 'Interior Design', name_bg: 'Дизайн', icon: 'bi-palette' }
+    ];
+
+    grid.innerHTML = '';
+    FALLBACK_CATEGORIES.forEach(category => {
+      grid.appendChild(createCategoryCard(category));
+    });
+    initCategorySlider(grid, prevBtn, nextBtn);
+  }
 }
 
 /**
  * Initialize the horizontal slider logic
  */
 function initCategorySlider(grid, prevBtn, nextBtn) {
-    let currentPosition = 0;
-    const items = grid.children;
-    
-    function updateSlider() {
-        const viewWidth = grid.parentElement.offsetWidth;
-        const itemWidth = items[0].offsetWidth;
-        const maxScroll = Math.max(0, grid.scrollWidth - viewWidth);
-        
-        // Clamp position
-        currentPosition = Math.max(0, Math.min(currentPosition, maxScroll));
-        
-        grid.style.transform = `translateX(-${currentPosition}px)`;
-        
-        // Update buttons
-        prevBtn.disabled = currentPosition <= 0;
-        nextBtn.disabled = currentPosition >= maxScroll - 5; // small buffer
-    }
+  let currentPosition = 0;
+  const items = grid.children;
 
-    nextBtn.addEventListener('click', () => {
-        const itemWidth = items[0].offsetWidth;
-        currentPosition += itemWidth;
-        updateSlider();
-    });
+  function updateSlider() {
+    const viewWidth = grid.parentElement.offsetWidth;
+    const itemWidth = items[0].offsetWidth;
+    const maxScroll = Math.max(0, grid.scrollWidth - viewWidth);
 
-    prevBtn.addEventListener('click', () => {
-        const itemWidth = items[0].offsetWidth;
-        currentPosition -= itemWidth;
-        updateSlider();
-    });
+    // Clamp position
+    currentPosition = Math.max(0, Math.min(currentPosition, maxScroll));
 
-    // Handle window resize
-    window.addEventListener('resize', updateSlider);
-    
-    // Initial update
-    setTimeout(updateSlider, 100);
+    grid.style.transform = `translateX(-${currentPosition}px)`;
+
+    // Update buttons
+    prevBtn.disabled = currentPosition <= 0;
+    nextBtn.disabled = currentPosition >= maxScroll - 5; // small buffer
+  }
+
+  nextBtn.addEventListener('click', () => {
+    const itemWidth = items[0].offsetWidth;
+    currentPosition += itemWidth;
+    updateSlider();
+  });
+
+  prevBtn.addEventListener('click', () => {
+    const itemWidth = items[0].offsetWidth;
+    currentPosition -= itemWidth;
+    updateSlider();
+  });
+
+  // Handle window resize
+  window.addEventListener('resize', updateSlider);
+
+  // Initial update
+  setTimeout(updateSlider, 100);
 }
 
 /**
  * Create category card element
  */
 function createCategoryCard(category) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'category-card-wrapper';
+  const wrapper = document.createElement('div');
+  wrapper.className = 'category-card-wrapper';
 
-    const currentLang = getCurrentLanguage();
-    const categoryName = currentLang === 'bg' ? category.name_bg : category.name_en;
+  const currentLang = getCurrentLanguage();
+  const categoryName = currentLang === 'bg' ? category.name_bg : category.name_en;
 
-    const iconMap = {
-        'interior-renovation': 'bi-house-heart',
-        'plumbing': 'bi-droplet-fill',
-        'electrical': 'bi-lightning-charge-fill',
-        'painting': 'bi-paint-bucket',
-        'roofing': 'bi-house-fill',
-        'construction': 'bi-building-fill-add',
-        'moving': 'bi-truck',
-        'interior-design': 'bi-palette',
-        'furniture': 'bi-chair',
-        'cleaning': 'bi-stars',
-        'smart-home': 'bi-cpu-fill'
-    };
+  const iconMap = {
+    'interior-renovation': 'bi-house-heart',
+    'plumbing': 'bi-droplet-fill',
+    'electrical': 'bi-lightning-charge-fill',
+    'painting': 'bi-paint-bucket',
+    'roofing': 'bi-house-fill',
+    'construction': 'bi-building-fill-add',
+    'moving': 'bi-truck',
+    'interior-design': 'bi-palette',
+    'furniture': 'bi-chair',
+    'cleaning': 'bi-stars',
+    'smart-home': 'bi-cpu-fill'
+  };
 
-    const iconClass = iconMap[category.slug] || category.icon || 'bi-tools';
+  const iconClass = iconMap[category.slug] || category.icon || 'bi-tools';
 
-    wrapper.innerHTML = `
+  wrapper.innerHTML = `
     <div class="category-card h-100 d-flex flex-column align-items-center justify-content-center">
       <div class="category-icon-wrapper mb-3 p-3 bg-light rounded-circle text-primary">
         <i class="bi ${iconClass}" style="font-size: 2.5rem;"></i>
@@ -214,9 +214,9 @@ function createCategoryCard(category) {
     </div>
   `;
 
-    wrapper.querySelector('.category-card').addEventListener('click', () => {
-        window.location.href = `/companies.html?category=${category.slug}`;
-    });
+  wrapper.querySelector('.category-card').addEventListener('click', () => {
+    window.location.href = `/companies.html?category=${category.slug}`;
+  });
 
-    return wrapper;
+  return wrapper;
 }

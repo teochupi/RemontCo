@@ -168,16 +168,28 @@
       "active_projects": "Active Projects",
       "profile": "Company Profile",
       "services": "Services"
-    },
-    "admin": {
-      "title": "Admin Panel",
-      "pending_companies": "Pending Companies",
-      "pending_ads": "Pending Ads",
-      "all_companies": "All Companies",
-      "all_ads": "All Ads",
-      "categories": "Categories",
-      "reviews": "Reviews"
     }
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "pending_companies": "Pending Companies",
+    "pending_jobs": "Pending Ads",
+    "system_stats": "System Statistics",
+    "total_users": "Total Users",
+    "total_jobs": "Total Ads",
+    "total_companies": "Companies",
+    "no_pending_jobs": "There are no new ads pending approval at the moment.",
+    "no_pending_companies": "No companies pending verification.",
+    "moderation_queue": "Moderation Queue",
+    "load_error": "No pending ads found or an error occurred during loading."
+  },
+  "demo": {
+    "notice": "<strong>Demo Mode:</strong> You are browsing as a Demo User. You can explore all features, but you cannot post real ads or change settings.",
+    "post_disabled": "Posting is disabled in Demo mode",
+    "edit_disabled": "You cannot change settings in Demo mode",
+    "demo_alert": "This is a Demo account. This feature is restricted.",
+    "no_companies": "No companies found.",
+    "no_description": "No description available."
   },
   "roles": {
     "consumer": "Consumer",
@@ -189,7 +201,7 @@
     "title": "Consumer Dashboard",
     "my_jobs": "My Job Postings",
     "post_job": "Post a New Job",
-    "profile": "Profile",
+    "profile": "Edit Profile",
     "active_jobs": "Your Active Requests",
     "post_title": "Describe Your Project",
     "profile_settings": "Security & Identity",

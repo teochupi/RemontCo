@@ -1,48 +1,196 @@
 import { supabase } from '../services/supabase.js';
-import { initI18n, getCurrentLanguage, t } from '../utils/i18n.js';
+import { initI18n, getCurrentLanguage, t, translatePage } from '../utils/i18n.js';
 import { requireRole } from '../utils/guards.js';
 import { renderNavbar } from '../components/navbar.js';
 import { renderFooter } from '../components/footer.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Guard access
     try {
-        const userProfile = await requireRole(['consumer', 'admin']);
+        // 1. Guard access - Allow consumers, admins, and demo users
+        const userProfile = await requireRole(['consumer', 'admin', 'demo']);
 
         // 2. Initialize UI
         await initI18n();
         await renderNavbar(document.getElementById('navbar-container'));
         renderFooter(document.getElementById('footer-container'));
+        translatePage();
 
         // Set User Info
         const usernameEl = document.getElementById('username');
         if (usernameEl) {
-            usernameEl.textContent = userProfile.first_name ? `${userProfile.first_name} ${userProfile.last_name}` : 'User';
+            usernameEl.textContent = userProfile.first_name ? `${userProfile.first_name} ${userProfile.last_name}` : (userProfile.username || 'User');
         }
 
         // Fill Profile Form
-        document.getElementById('profile-first-name').value = userProfile.first_name || '';
-        document.getElementById('profile-last-name').value = userProfile.last_name || '';
-        document.getElementById('profile-phone').value = userProfile.phone || '';
+        const firstNameInput = document.getElementById('profile-first-name');
+        const lastNameInput = document.getElementById('profile-last-name');
+        const phoneInput = document.getElementById('profile-phone');
+
+        if (firstNameInput) firstNameInput.value = userProfile.first_name || '';
+        if (lastNameInput) lastNameInput.value = userProfile.last_name || '';
+        if (phoneInput) phoneInput.value = userProfile.phone || '';
 
         // 3. Load UI Data
         loadCategories();
-        loadUserJobs(userProfile.id);
 
-        // 4. Setup Events
-        setupEventListeners(userProfile.id);
+        if (userProfile.role === 'demo') {
+            setupDemoMode();
+        } else {
+            loadUserJobs(userProfile.id);
+            setupEventListeners(userProfile.id);
+        }
 
-        // 5. Handle initial hash for navigation (e.g., #profile)
+        // 4. Handle initial hash for navigation
         handleHashNavigation();
         window.addEventListener('hashchange', handleHashNavigation);
 
-        // 6. Show page after all translations are ready
+        // 5. Reveal the page
         document.body.classList.add('ready');
     } catch (err) {
         console.error('Initialization error:', err);
-        document.body.classList.add('ready'); // Show anyway if error
+        document.body.classList.add('ready');
     }
 });
+
+/**
+ * Setup Demo Mode: Load random data and show demo notices
+ */
+async function setupDemoMode() {
+    const usernameEl = document.getElementById('username');
+    if (usernameEl) usernameEl.textContent = 'Demo User';
+
+    // Show companies tab link (if exists)
+    const companiesTabBtn = document.getElementById('v-pills-companies-tab');
+    if (companiesTabBtn) companiesTabBtn.classList.remove('d-none');
+
+    // Show notice
+    const alertContainer = document.getElementById('alert-container');
+    if (alertContainer) {
+        alertContainer.innerHTML = `
+            <div class="alert alert-info border-0 shadow-sm mb-4 rounded-4 d-flex align-items-center p-3 animate-fade-in">
+                <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                <div>${t('demo.notice')}</div>
+            </div>
+        `;
+    }
+
+    // Load random data
+    loadRandomJobs();
+    loadRandomCompanies();
+
+    // Setup events with isDemo=true
+    setupEventListeners(null, true);
+}
+
+async function loadRandomJobs() {
+    try {
+        const { data: user } = await supabase.auth.getUser();
+        if (!user.user) return;
+
+        const { data, error } = await supabase
+            .from('jobs')
+            .select('*, category:service_categories(name_bg, name_en)')
+            .eq('consumer_id', user.user.id)
+            .limit(5);
+
+        if (error) throw error;
+        renderJobs(data);
+    } catch (err) {
+        console.error('Demo jobs error:', err);
+    }
+}
+
+async function loadRandomCompanies() {
+    const companiesList = document.getElementById('demo-companies-list');
+    if (!companiesList) return;
+
+    try {
+        const { data, error } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('is_verified', true)
+            .limit(5);
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            companiesList.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted fw-medium">${t('demo.no_companies')}</p>
+                </div>
+            `;
+            return;
+        }
+
+        companiesList.innerHTML = data.map(company => `
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden transition-hover">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-building fs-1 text-primary"></i>
+                        </div>
+                        <h5 class="card-title fw-bold text-dark">${company.name}</h5>
+                        <p class="text-muted small mb-3"><i class="bi bi-geo-alt me-1"></i> ${company.city}</p>
+                        <hr class="opacity-10">
+                        <p class="card-text text-truncate-2 small opacity-75">${company.description || t('demo.no_description')}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (err) {
+        console.error('Demo companies error:', err);
+    }
+}
+
+function renderJobs(data) {
+    const jobsList = document.getElementById('jobs-list');
+    if (!jobsList) return;
+
+    if (!data || data.length === 0) {
+        jobsList.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-folder2-open fs-1 text-muted opacity-25 mb-3"></i>
+                <p class="text-muted fw-medium">${t('dashboard_consumer.no_jobs')}</p>
+            </div>
+        `;
+        return;
+    }
+
+    const currentLang = getCurrentLanguage();
+    jobsList.innerHTML = data.map(job => {
+        const title = (currentLang === 'en' && job.title_en) ? job.title_en : job.title;
+        const description = (currentLang === 'en' && job.description_en) ? job.description_en : job.description;
+        const categoryName = currentLang === 'bg' ? job.category.name_bg : job.category.name_en;
+        const city = job.city || job.location;
+
+        return `
+            <div class="col-12 mb-4">
+                <div class="card shadow-sm border-0 job-card h-100 rounded-4 overflow-hidden">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge ${getStatusBadgeClass(job.status)} px-3 py-2 rounded-pill uppercase small">
+                                ${job.status.toUpperCase()}
+                            </span>
+                            <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> ${new Date(job.created_at).toLocaleDateString(currentLang === 'bg' ? 'bg-BG' : 'en-US')}</small>
+                        </div>
+                        <h5 class="card-title fw-bold text-dark mb-2">${title}</h5>
+                        <div class="d-flex gap-3 mb-3 small text-muted">
+                            <span><i class="bi bi-tag me-1"></i> ${categoryName}</span>
+                            <span><i class="bi bi-geo-alt me-1"></i> ${city}</span>
+                        </div>
+                        <p class="card-text text-dark opacity-75 text-truncate-3">${description}</p>
+                        <div class="mt-4 border-top pt-3 d-flex justify-content-between align-items-center">
+                            <span class="h5 mb-0 fw-bold text-primary">${job.budget_max ? job.budget_max + ' EUR' : t('common.negotiable')}</span>
+                            <button class="btn btn-sm btn-outline-primary px-4 rounded-pill fw-bold">
+                                <i class="bi bi-eye me-1"></i> ${t('common.view')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
 
 async function loadCategories() {
     const categorySelect = document.getElementById('job-category');
@@ -86,67 +234,43 @@ async function loadUserJobs(userId) {
 
         if (error) throw error;
 
-        if (!data || data.length === 0) {
-            jobsList.innerHTML = `
-                <div class="col-12 text-center py-5">
-                    <i class="bi bi-inbox fs-1 text-muted"></i>
-                    <p class="mt-2 text-muted">${t('dashboard_consumer.no_jobs')}</p>
-                </div>
-            `;
-            return;
-        }
-
-        const currentLang = getCurrentLanguage();
-
-        jobsList.innerHTML = data.map(job => `
-            <div class="col-12 mb-4">
-                <div class="card shadow-sm border-0 job-card h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <span class="badge ${getStatusBadgeClass(job.status)}">
-                                ${job.status.toUpperCase()}
-                            </span>
-                            <small class="text-muted">${new Date(job.created_at).toLocaleDateString()}</small>
-                        </div>
-                        <h5 class="card-title h5 mb-2">${job.title}</h5>
-                        <div class="d-flex gap-3 mb-3 small text-muted">
-                            <span><i class="bi bi-tag me-1"></i> ${currentLang === 'bg' ? job.category.name_bg : job.category.name_en}</span>
-                            <span><i class="bi bi-geo-alt me-1"></i> ${job.city || job.location}</span>
-                        </div>
-                        <p class="card-text text-muted">${job.description}</p>
-                        <div class="mt-4 border-top pt-3 d-flex justify-content-between align-items-center">
-                            <span class="h6 mb-0 fw-bold text-primary">${job.budget_max ? job.budget_max + ' EUR' : t('common.negotiable')}</span>
-                            <button class="btn btn-sm btn-outline-primary px-3">
-                                <i class="bi bi-eye me-1"></i> ${t('common.view')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
+        renderJobs(data);
 
     } catch (err) {
         console.error('Error loading jobs:', err);
-        jobsList.innerHTML = `<div class="alert alert-danger">Грешка при зареждане на обявите.</div>`;
+        jobsList.innerHTML = `<div class="alert alert-soft-danger rounded-4 p-4 border">${t('common.error')}</div>`;
     }
 }
 
 function getStatusBadgeClass(status) {
     switch (status) {
-        case 'approved': return 'bg-success-subtle text-success';
-        case 'pending': return 'bg-warning-subtle text-warning';
-        case 'draft': return 'bg-light text-dark';
-        case 'closed': return 'bg-secondary-subtle text-secondary';
-        default: return 'bg-light text-dark';
+        case 'approved': return 'bg-success-subtle text-success border border-success-subtle';
+        case 'pending': return 'bg-warning-subtle text-warning border border-warning-subtle';
+        case 'draft': return 'bg-light text-dark border';
+        case 'closed': return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
+        default: return 'bg-light text-dark border';
     }
 }
 
-function setupEventListeners(userId) {
-    // Post Job Form
+function setupEventListeners(userId, isDemo = false) {
     const jobForm = document.getElementById('post-job-form');
     if (jobForm) {
+        if (isDemo) {
+            const btn = jobForm.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.innerHTML = `<i class="bi bi-slash-circle me-2"></i> ${t('demo.post_disabled')}`;
+                btn.classList.replace('btn-primary', 'btn-secondary');
+            }
+        }
+
         jobForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            if (isDemo) {
+                alert(t('demo.edit_disabled'));
+                return;
+            }
+
             const btn = jobForm.querySelector('button[type="submit"]');
             btn.disabled = true;
 
@@ -157,7 +281,7 @@ function setupEventListeners(userId) {
                 description: document.getElementById('job-description').value,
                 city: document.getElementById('job-location').value,
                 budget_max: document.getElementById('job-budget').value || null,
-                status: 'pending' // Default to pending for admin approval
+                status: 'pending'
             };
 
             try {
@@ -172,18 +296,23 @@ function setupEventListeners(userId) {
                 document.getElementById('v-pills-jobs-tab').click();
                 loadUserJobs(userId);
             } catch (err) {
-                alert('Грешка при публикуване: ' + err.message);
+                alert(t('common.error') + ': ' + err.message);
             } finally {
                 btn.disabled = false;
             }
         });
     }
 
-    // Profile Form
     const profileForm = document.getElementById('profile-form');
     if (profileForm) {
         profileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            if (isDemo) {
+                alert(t('demo.edit_disabled'));
+                return;
+            }
+
             const btn = profileForm.querySelector('button[type="submit"]');
             btn.disabled = true;
 
@@ -202,18 +331,16 @@ function setupEventListeners(userId) {
 
                 if (error) throw error;
 
-                alert('Профилът е обновен успешно!');
-                // Update header name
+                alert(t('common.success'));
                 document.getElementById('username').textContent = `${updateData.first_name} ${updateData.last_name}`;
             } catch (err) {
-                alert('Грешка при обновяване: ' + err.message);
+                alert(t('common.error') + ': ' + err.message);
             } finally {
                 btn.disabled = false;
             }
         });
     }
 
-    // Logout
     const logoutBtn = document.getElementById('logout-btn-profile');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
@@ -222,7 +349,6 @@ function setupEventListeners(userId) {
         });
     }
 
-    // Sync hash with tabs
     const tabButtons = document.querySelectorAll('button[data-bs-toggle="pill"]');
     tabButtons.forEach(btn => {
         btn.addEventListener('shown.bs.tab', (e) => {
@@ -232,9 +358,6 @@ function setupEventListeners(userId) {
     });
 }
 
-/**
- * Handle tab navigation via URL hash
- */
 function handleHashNavigation() {
     const hash = window.location.hash;
     if (!hash) return;
@@ -250,4 +373,3 @@ function handleHashNavigation() {
         if (jobsTab) jobsTab.click();
     }
 }
-

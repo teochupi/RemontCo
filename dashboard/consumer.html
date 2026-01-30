@@ -19,6 +19,7 @@
   <div id="navbar-container"></div>
 
   <div class="container py-5 mt-5">
+    <div id="alert-container"></div>
     <div class="row">
       <!-- Sidebar/Stat Column -->
       <div class="col-lg-3">
@@ -44,7 +45,12 @@
               </button>
               <button class="nav-link text-start" id="v-pills-profile-tab" data-bs-toggle="pill"
                 data-bs-target="#v-pills-profile" type="button" role="tab">
-                <i class="bi bi-person me-2"></i> <span data-i18n="dashboard_consumer.profile">Profile Settings</span>
+                <i class="bi bi-person me-2"></i> <span data-i18n="dashboard_consumer.profile">Настройки на
+                  профила</span>
+              </button>
+              <button class="nav-link text-start d-none" id="v-pills-companies-tab" data-bs-toggle="pill"
+                data-bs-target="#v-pills-companies" type="button" role="tab">
+                <i class="bi bi-building me-2"></i> <span data-i18n="nav.companies">Проверени фирми</span>
               </button>
             </div>
           </div>
@@ -135,20 +141,20 @@
                 <form id="profile-form" class="mb-4">
                   <div class="row g-3">
                     <div class="col-md-6">
-                      <label class="form-label" data-i18n="auth.first_name">First Name</label>
+                      <label class="form-label" data-i18n="auth.first_name">Име</label>
                       <input type="text" class="form-control" id="profile-first-name" required>
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label" data-i18n="auth.last_name">Last Name</label>
+                      <label class="form-label" data-i18n="auth.last_name">Фамилия</label>
                       <input type="text" class="form-control" id="profile-last-name" required>
                     </div>
                     <div class="col-md-12">
-                      <label class="form-label" data-i18n="auth.phone">Phone</label>
+                      <label class="form-label" data-i18n="auth.phone">Телефон</label>
                       <input type="tel" class="form-control" id="profile-phone">
                     </div>
                     <div class="col-12 mt-4">
                       <button type="submit" class="btn btn-primary px-4">
-                        <i class="bi bi-save me-2"></i> <span data-i18n="common.save">Save Changes</span>
+                        <i class="bi bi-save me-2"></i> <span data-i18n="common.save">Запази промените</span>
                       </button>
                     </div>
                   </div>
@@ -158,8 +164,19 @@
 
                 <h3 class="h5 mb-3">Акаунт</h3>
                 <button id="logout-btn-profile" class="btn btn-outline-danger">
-                  <i class="bi bi-box-arrow-right me-2"></i> <span data-i18n="auth.sign_out">Log out</span>
+                  <i class="bi bi-box-arrow-right me-2"></i> <span data-i18n="auth.sign_out">Изход</span>
                 </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Companies Tab (Demo) -->
+          <div class="tab-pane fade" id="v-pills-companies" role="tabpanel">
+            <h2 class="h4 mb-4">Препоръчани фирми</h2>
+            <div id="demo-companies-list" class="row g-4">
+              <!-- Data injected via JS -->
+              <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
               </div>
             </div>
           </div>

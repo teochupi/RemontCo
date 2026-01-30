@@ -14,7 +14,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- =====================================================
 
 -- User roles
-CREATE TYPE user_role AS ENUM ('consumer', 'company_admin', 'company_member', 'admin');
+CREATE TYPE user_role AS ENUM ('consumer', 'company_admin', 'company_member', 'admin', 'demo');
 
 -- Company status
 CREATE TYPE company_status AS ENUM ('pending', 'approved', 'rejected', 'suspended');

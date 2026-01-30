@@ -96,7 +96,8 @@ export function routeAfterLogin(role) {
     'consumer': '/dashboard/consumer.html',
     'company_admin': '/dashboard/company.html',
     'company_member': '/dashboard/company.html',
-    'admin': '/dashboard/admin.html'
+    'admin': '/dashboard/admin.html',
+    'demo': '/dashboard/consumer.html'
   };
 
   return routes[role] || '/index.html';

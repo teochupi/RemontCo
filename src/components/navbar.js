@@ -70,7 +70,7 @@ export async function renderNavbar(container) {
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow">
                 <li><a class="dropdown-item py-2" href="${getDashboardUrl(user?.role)}" data-i18n="nav.dashboard"><i class="bi bi-speedometer2 me-2"></i> ${t('nav.dashboard')}</a></li>
-                <li><a class="dropdown-item py-2" href="${getDashboardUrl(user?.role)}#profile" data-i18n="nav.profile"><i class="bi bi-person me-2"></i> ${t('nav.profile')}</a></li>
+
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item py-2 text-danger" href="#" id="logoutBtn" data-i18n="nav.logout"><i class="bi bi-box-arrow-right me-2"></i> ${t('nav.logout')}</a></li>
               </ul>
@@ -95,7 +95,8 @@ function getDashboardUrl(role) {
     'consumer': '/dashboard/consumer.html',
     'company_admin': '/dashboard/company.html',
     'company_member': '/dashboard/company.html',
-    'admin': '/dashboard/admin.html'
+    'admin': '/dashboard/admin.html',
+    'demo': '/dashboard/consumer.html'
   };
   return dashboardMap[role] || '/index.html';
 }
