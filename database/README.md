@@ -28,9 +28,8 @@ This guide explains how to set up the database for the RemontCo platform using S
    - **anon public** key (long JWT token)
 3. Create a `.env` file in the project root (copy from `.env.example`)
 4. Paste your credentials:
-   ```
-   VITE_SUPABASE_URL=https://xxxxxxxxxxxxx.supabase.co
-   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+   VITE_SUPABASE_URL=https://your-project-id.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-public-key-here
    ```
 
 ### 3. Run Database Migrations

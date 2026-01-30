@@ -1,6 +1,6 @@
 # RemontCo - Trusted Construction Services Marketplace
 
-![RemontCo Logo](assets/images/logo.png)
+![RemontCo Logo](/Logo_Chupetlov_2.png)
 
 ## 🏗️ About RemontCo
 
@@ -93,7 +93,7 @@ This creates a fair, legal, and professional marketplace that benefits:
 ## 🗂️ Project Structure
 
 ```
-RemontCo_Ver.1/
+RemontCo/
 ├── assets/
 │   ├── css/
 │   │   └── styles.css          # Custom CSS with brand colors
@@ -155,10 +155,8 @@ RemontCo_Ver.1/
 - **Node.js** 18+ and npm
 - **Supabase account** (free tier is sufficient)
 
-### Step 1: Clone Repository
-```bash
-cd "c:\Teodor Chupetlov\RemontCo_Ver.1"
-```
+git clone https://github.com/teochupi/RemontCo.git
+cd RemontCo
 
 ### Step 2: Install Dependencies
 ```bash
@@ -330,7 +328,7 @@ MIT License - see LICENSE file for details
 
 - **Email**: support@remontco.bg
 - **Website**: [remontco.bg](https://remontco.bg)
-- **GitHub**: [github.com/remontco/platform](https://github.com/remontco/platform)
+- **GitHub**: [github.com/teochupi/RemontCo](https://github.com/teochupi/RemontCo)
 
 ---
 
@@ -342,6 +340,6 @@ MIT License - see LICENSE file for details
 
 ---
 
-**Built with ❤️ in Bulgaria**
+**Built by ❤️ [Teodor Chupetlov](https://teodor-chupetlov.eu)**
 
 *RemontCo - Making construction services transparent, legal, and trustworthy.*
