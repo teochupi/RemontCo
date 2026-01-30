@@ -69,10 +69,10 @@ export async function renderNavbar(container) {
                 <span>${user?.first_name || 'User'}</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow">
-                <li><a class="dropdown-item py-2" href="/dashboard/consumer.html"><i class="bi bi-speedometer2 me-2"></i> Табло</a></li>
-                <li><a class="dropdown-item py-2" href="/dashboard/consumer.html#profile"><i class="bi bi-person me-2"></i> Профил</a></li>
+                <li><a class="dropdown-item py-2" href="/dashboard/consumer.html" data-i18n="nav.dashboard"><i class="bi bi-speedometer2 me-2"></i> ${t('nav.dashboard')}</a></li>
+                <li><a class="dropdown-item py-2" href="/dashboard/consumer.html#profile" data-i18n="nav.profile"><i class="bi bi-person me-2"></i> ${t('nav.profile')}</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item py-2 text-danger" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right me-2"></i> Изход</a></li>
+                <li><a class="dropdown-item py-2 text-danger" href="#" id="logoutBtn" data-i18n="nav.logout"><i class="bi bi-box-arrow-right me-2"></i> ${t('nav.logout')}</a></li>
               </ul>
             </li>
           `}
