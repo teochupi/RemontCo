@@ -301,8 +301,8 @@ Each category supports unlimited subcategories via hierarchical structure.
 After setting up the database, create a demo admin user:
 
 **Admin**
-- Email: `admin@remontco.bg`
-- Password: `Admin123!`
+- Email or Username: `demo`
+- Password: `demo123`
 
 Create test accounts via registration pages for other roles.
 
