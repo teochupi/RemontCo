@@ -32,7 +32,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 4. Setup Events
         setupEventListeners(userProfile.id);
 
-        // 5. Show page after all translations are ready
+        // 5. Handle initial hash for navigation (e.g., #profile)
+        handleHashNavigation();
+        window.addEventListener('hashchange', handleHashNavigation);
+
+        // 6. Show page after all translations are ready
         document.body.classList.add('ready');
     } catch (err) {
         console.error('Initialization error:', err);
@@ -216,6 +220,34 @@ function setupEventListeners(userId) {
             await supabase.auth.signOut();
             window.location.href = '/index.html';
         });
+    }
+
+    // Sync hash with tabs
+    const tabButtons = document.querySelectorAll('button[data-bs-toggle="pill"]');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('shown.bs.tab', (e) => {
+            const hash = e.target.getAttribute('data-bs-target').replace('#v-pills-', '#');
+            history.replaceState(null, null, hash);
+        });
+    });
+}
+
+/**
+ * Handle tab navigation via URL hash
+ */
+function handleHashNavigation() {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    if (hash === '#profile') {
+        const profileTab = document.getElementById('v-pills-profile-tab');
+        if (profileTab) profileTab.click();
+    } else if (hash === '#post') {
+        const postTab = document.getElementById('v-pills-post-tab');
+        if (postTab) postTab.click();
+    } else if (hash === '#jobs') {
+        const jobsTab = document.getElementById('v-pills-jobs-tab');
+        if (jobsTab) jobsTab.click();
     }
 }
 
