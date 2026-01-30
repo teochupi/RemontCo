@@ -10,6 +10,14 @@ import { getCurrentUser } from '../services/supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   await initI18n();
+
+  // Redirect if already logged in
+  const user = await getCurrentUser();
+  if (user && user.role) {
+    handlePostLoginRedirect();
+    return;
+  }
+
   await renderNavbar(document.getElementById('navbar-container'));
 
   const form = document.getElementById('loginForm');

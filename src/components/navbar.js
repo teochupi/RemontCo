@@ -66,11 +66,11 @@ export async function renderNavbar(container) {
             <li class="nav-item dropdown">
               <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-person-circle fs-5"></i>
-                <span>${user?.first_name || 'User'}</span>
+                <span>${user?.first_name || t('nav.user')}</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow">
-                <li><a class="dropdown-item py-2" href="/dashboard/consumer.html" data-i18n="nav.dashboard"><i class="bi bi-speedometer2 me-2"></i> ${t('nav.dashboard')}</a></li>
-                <li><a class="dropdown-item py-2" href="/dashboard/consumer.html#profile" data-i18n="nav.profile"><i class="bi bi-person me-2"></i> ${t('nav.profile')}</a></li>
+                <li><a class="dropdown-item py-2" href="${getDashboardUrl(user?.role)}" data-i18n="nav.dashboard"><i class="bi bi-speedometer2 me-2"></i> ${t('nav.dashboard')}</a></li>
+                <li><a class="dropdown-item py-2" href="${getDashboardUrl(user?.role)}#profile" data-i18n="nav.profile"><i class="bi bi-person me-2"></i> ${t('nav.profile')}</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item py-2 text-danger" href="#" id="logoutBtn" data-i18n="nav.logout"><i class="bi bi-box-arrow-right me-2"></i> ${t('nav.logout')}</a></li>
               </ul>

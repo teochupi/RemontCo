@@ -8,6 +8,7 @@
     "register": "Register",
     "dashboard": "Dashboard",
     "profile": "Profile",
+    "user": "User",
     "logout": "Logout"
   },
   "hero": {
