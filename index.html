@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="bg">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="RemontCo - Trusted platform connecting consumers with verified construction & property service companies">
+  <title>RemontCo - Trusted Renovations with Registered Companies</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/Logo_Chupetlov_2.png">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body>
+  <!-- Navigation (will be injected) -->
+  <div id="navbar-container"></div>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-content">
+      <div class="row align-items-center">
+        <div class="col-lg-10 mx-auto text-center fade-in-up">
+          <h1 class="display-2 fw-bold mb-4" data-i18n="hero.title">
+            Trusted Renovations with Registered Companies
+          </h1>
+          <p class="lead fs-3 mb-5" data-i18n="hero.subtitle">
+            Connect with verified construction and renovation companies. Only registered legal entities. Full
+            transparency and security.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-5 bg-light">
+    <div class="container">
+      <h2 class="section-title" data-i18n="features.title">Why Choose RemontCo</h2>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box">
+            <div class="feature-icon">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <h3 data-i18n="features.verified_title">Verified Companies Only</h3>
+            <p data-i18n="features.verified_desc">
+              All contractors are verified legal entities with valid BULSTAT/EIK
+            </p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box">
+            <div class="feature-icon">
+              <i class="bi bi-file-text"></i>
+            </div>
+            <h3 data-i18n="features.contracts_title">Legal Contracts</h3>
+            <p data-i18n="features.contracts_desc">
+              Every job is performed with official contract and invoice
+            </p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box">
+            <div class="feature-icon">
+              <i class="bi bi-star"></i>
+            </div>
+            <h3 data-i18n="features.quality_title">Quality Guarantee</h3>
+            <p data-i18n="features.quality_desc">
+              Consumer protection and high execution standards
+            </p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box">
+            <div class="feature-icon">
+              <i class="bi bi-eye"></i>
+            </div>
+            <h3 data-i18n="features.transparency_title">Full Transparency</h3>
+            <p data-i18n="features.transparency_desc">
+              Traceable quotes, contracts, and accountability
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Service Categories Section -->
+  <section class="py-5">
+    <div class="container">
+      <h2 class="section-title" data-i18n="categories.title">Services</h2>
+      <div class="categories-slider-container position-relative px-md-5">
+        <button id="prevBtn" class="slider-arrow prev-arrow" aria-label="Previous">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <div class="categories-slider-viewport overflow-hidden">
+          <div class="row g-4 flex-nowrap" id="categories-grid"
+            style="transition: transform 0.4s ease-out; cursor: grab;">
+            <!-- Categories will be loaded dynamically -->
+            <div class="col-12 text-center">
+              <div class="spinner-border spinner-border-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button id="nextBtn" class="slider-arrow next-arrow" aria-label="Next">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="py-5 bg-light">
+    <div class="container">
+      <h2 class="section-title" data-i18n="how_it_works.title">How It Works</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="text-center p-4">
+            <div
+              class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
+              style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
+              1
+            </div>
+            <h4 data-i18n="how_it_works.step1_title">Post Your Job</h4>
+            <p data-i18n="how_it_works.step1_desc">Describe what you need and set your budget</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-center p-4">
+            <div
+              class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
+              style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
+              2
+            </div>
+            <h4 data-i18n="how_it_works.step2_title">Receive Offers</h4>
+            <p data-i18n="how_it_works.step2_desc">Verified companies send you competitive quotes</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-center p-4">
+            <div
+              class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
+              style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
+              3
+            </div>
+            <h4 data-i18n="how_it_works.step3_title">Hire & Complete</h4>
+            <p data-i18n="how_it_works.step3_desc">Choose the best offer and get your job done</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-5 bg-gradient-primary text-white">
+    <div class="container text-center">
+      <h2 class="display-4 fw-bold mb-4" data-i18n="cta.title">Ready to Start Your Project?</h2>
+      <p class="lead mb-4" data-i18n="cta.subtitle">Join thousands of satisfied customers who found their perfect
+        contractor</p>
+      <a href="/auth/register.html" class="btn btn-light btn-lg">
+        <span data-i18n="cta.button">Get Started Now</span> <i class="bi bi-arrow-right ms-2"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer (will be injected) -->
+  <div id="footer-container"></div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Page Script -->
+  <script type="module" src="/src/pages/index.js"></script>
+</body>
+
+</html>

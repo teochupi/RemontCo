@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="bg">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verified Companies - RemontCo</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/Logo_Chupetlov_2.png">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body>
+  <div id="navbar-container"></div>
+
+  <main>
+    <!-- Header -->
+    <section class="bg-primary text-white py-5">
+      <div class="container">
+        <h1 class="display-4 fw-bold" data-i18n="nav.companies">Verified Companies</h1>
+        <p class="lead" data-i18n="company.browse_subtitle">Browse registered and verified construction companies</p>
+      </div>
+    </section>
+
+    <!-- Filters & Search -->
+    <section class="py-4 bg-light">
+      <div class="container">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <input type="text" class="form-control" id="searchInput" data-i18n-placeholder="company.search_placeholder"
+              placeholder="Search companies...">
+          </div>
+          <div class="col-md-4">
+            <select class="form-select" id="categoryFilter">
+              <option value="" data-i18n="company.all_categories">All Categories</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <select class="form-select" id="cityFilter">
+              <option value="" data-i18n="company.all_cities">All Cities</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Companies Grid -->
+    <section class="py-5">
+      <div class="container">
+        <div class="row g-4" id="companies-grid">
+          <div class="col-12 text-center">
+            <div class="spinner-border spinner-border-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="/src/pages/companies.js"></script>
+</body>
+
+</html>
