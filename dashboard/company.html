@@ -1,41 +1,128 @@
 <!DOCTYPE html>
 <html lang="bg">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Фирмен панел - RemontCo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="dashboard_company.title">Company Dashboard - RemontCo</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
-
-<body>
-    <div class="container py-5">
-        <h1>Панел за управление на фирма</h1>
-        <div class="alert alert-info">Вашата фирма очаква верификация от администратор.</div>
-        <div class="row mt-4">
-            <div class="col-md-3">
-                <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action active">Профил на фирмата</a>
-                    <a href="#" class="list-group-item list-group-item-action">Услуги</a>
-                    <a href="#" class="list-group-item list-group-item-action">Оферти</a>
-                </div>
+<body class="bg-light">
+  <!-- Navigation -->
+  <div id="navbar-container"></div>
+  
+  <div class="container py-5 mt-5">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-lg-3">
+        <div class="card shadow-sm border-0 mb-4 sticky-top" style="top: 100px;">
+          <div class="card-body">
+            <div class="text-center mb-3">
+              <div class="avatar-circle mx-auto mb-2 text-primary">
+                <i class="bi bi-building fs-1"></i>
+              </div>
+              <h5 id="company-name" class="mb-0">Loading...</h5>
+              <p id="verification-badge" class="mt-2 mb-0"></p>
             </div>
-            <div class="col-md-9">
-                <div class="card p-4">
-                    <h3>Данни на фирмата</h3>
-                    <p>ЕИК: <span id="display-uic">Зарежда се...</span></p>
-                </div>
+            <hr>
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
+              <button class="nav-link active text-start" id="v-pills-browse-tab" data-bs-toggle="pill" data-bs-target="#v-pills-browse" type="button" role="tab">
+                <i class="bi bi-search me-2"></i> <span data-i18n="dashboard_company.browse_ads">Find Work</span>
+              </button>
+              <button class="nav-link text-start" id="v-pills-offers-tab" data-bs-toggle="pill" data-bs-target="#v-pills-offers" type="button" role="tab">
+                <i class="bi bi-send-check me-2"></i> <span data-i18n="dashboard_company.my_offers">My Offers</span>
+              </button>
+              <button class="nav-link text-start" id="v-pills-projects-tab" data-bs-toggle="pill" data-bs-target="#v-pills-projects" type="button" role="tab">
+                <i class="bi bi-tools me-2"></i> <span data-i18n="dashboard_company.active_projects">Active Projects</span>
+              </button>
+              <button class="nav-link text-start" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab">
+                <i class="bi bi-gear me-2"></i> <span data-i18n="dashboard_company.profile">Settings</span>
+              </button>
             </div>
+          </div>
         </div>
-        <button id="logout-btn" class="btn btn-danger mt-4">Изход</button>
-    </div>
-    <script type="module">
-        import { authService } from '/src/js/services/authService.js';
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await authService.signOut();
-            window.location.href = '/';
-        });
-    </script>
-</body>
+      </div>
 
+      <!-- Main Content -->
+      <div class="col-lg-9">
+        <div class="tab-content" id="v-pills-tabContent">
+          <!-- Browse Jobs Tab -->
+          <div class="tab-pane fade show active" id="v-pills-browse" role="tabpanel">
+            <h2 class="h4 mb-4" data-i18n="dashboard_company.available_jobs">Available Projects</h2>
+            <div id="available-jobs-list" class="row g-4">
+              <!-- Jobs injected here -->
+              <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- My Offers Tab -->
+          <div class="tab-pane fade" id="v-pills-offers" role="tabpanel">
+            <h2 class="h4 mb-4" data-i18n="dashboard_company.my_offers_title">Your Submitted Offers</h2>
+            <div id="company-offers-list" class="row g-4">
+               <p class="text-muted">Loading your offers...</p>
+            </div>
+          </div>
+
+          <!-- Settings Tab -->
+          <div class="tab-pane fade" id="v-pills-profile" role="tabpanel">
+            <h2 class="h4 mb-4">Company Profile</h2>
+            <div class="card shadow-sm border-0 mb-4">
+              <div class="card-body">
+                <p id="company-eik"></p>
+                <p id="company-address"></p>
+                <button id="logout-btn" class="btn btn-outline-danger">
+                  <i class="bi bi-box-arrow-right me-2"></i> <span data-i18n="nav.logout">Log out</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offer Modal -->
+  <div class="modal fade" id="offerModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="submit-offer-form">
+          <div class="modal-header">
+            <h5 class="modal-title">Send Offer</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="modal-job-id">
+            <div class="mb-3">
+              <label class="form-label">Price Offer (BGN)</label>
+              <input type="number" class="form-control" id="offer-price" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Message to Client</label>
+              <textarea class="form-control" id="offer-message" rows="4" required placeholder="Describe how you will help..."></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Estimated Completion Time</label>
+              <input type="text" class="form-control" id="offer-duration" placeholder="e.g. 5 days">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Send Offer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-container"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="/src/pages/company_dashboard.js"></script>
+</body>
 </html>

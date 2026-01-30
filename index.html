@@ -2,114 +2,184 @@
 <html lang="bg">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RemontCo - Проверени строителни услуги</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="RemontCo - Професионална платформа, свързваща потребители с проверени строителни фирми.">
+  <title>RemontCo - Доверени Ремонти от Регистрирани Фирми</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/Logo_Chupetlov_2.png">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-primary" href="/">RemontCo</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link" href="/" data-i18n="nav_home">Начало</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/companies.html" data-i18n="nav_companies">Фирми</a>
-                    </li>
-                    <li class="nav-item"><a class="nav-link" href="/about.html" data-i18n="nav_about">За нас</a></li>
-                    <li class="nav-item ms-lg-3">
-                        <select id="lang-switcher" class="form-select form-select-sm">
-                            <option value="bg" selected>BG</option>
-                            <option value="en">EN</option>
-                        </select>
-                    </li>
-                    <li class="nav-item ms-lg-3"><a class="btn btn-outline-primary btn-sm" href="/auth/login.html"
-                            data-i18n="nav_login">Вход</a></li>
-                    <li class="nav-item ms-2"><a class="btn btn-primary btn-sm" href="/auth/register.html"
-                            data-i18n="nav_register">Регистрация</a></li>
-                </ul>
-            </div>
+  <!-- Navigation (will be injected) -->
+  <div id="navbar-container"></div>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-content">
+      <div class="row align-items-center">
+        <div class="col-lg-10 mx-auto text-center fade-in-up">
+          <h1 class="display-2 fw-bold mb-4" data-i18n="hero.title">
+            Доверени Ремонти с Регистрирани Фирми
+          </h1>
+          <p class="lead fs-3 mb-5" data-i18n="hero.subtitle">
+            Свържете се с проверени строителни и ремонтни компании. Само регистрирани юридически лица. Пълна прозрачност и сигурност.
+          </p>
+
         </div>
-    </nav>
+      </div>
+    </div>
+  </section>
 
-    <main>
-        <section class="hero-section">
-            <div class="container text-center">
-                <h1 class="display-4 fw-bold mb-4" data-i18n="hero_title">Търсите надежден ремонт? Свържете се с
-                    проверени фирми.</h1>
-                <p class="lead mb-5" data-i18n="hero_subtitle">RemontCo свързва потребителите само с лицензирани фирми,
-                    гарантирайки качество и легалност.</p>
-                <div class="d-flex justify-content-center gap-3">
-                    <a href="/companies.html" class="btn btn-primary btn-lg px-5 text-white"
-                        data-i18n="cta_find_company">Намери фирма</a>
-                    <a href="/auth/register.html" class="btn btn-outline-light btn-lg px-5"
-                        data-i18n="cta_register_company">Регистрирай фирма</a>
-                </div>
+  <!-- Features Section -->
+  <section class="py-5 bg-light">
+    <div class="container">
+      <h2 class="section-title" data-i18n="features.title">Защо да изберете RemontCo</h2>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box">
+            <div class="feature-icon">
+              <i class="bi bi-shield-check"></i>
             </div>
-        </section>
-
-        <!-- Benefits Section -->
-        <section class="py-5 bg-white">
-            <div class="container">
-                <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
-                    <div class="feature col text-center">
-                        <div
-                            class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3 text-success">
-                            <i class="bi bi-shield-check"></i>
-                        </div>
-                        <h3 class="fs-4" data-i18n="benefit_1_title">Само легални фирми</h3>
-                        <p data-i18n="benefit_1_desc">Всеки изпълнител е верифициран с ЕИК/БУЛСТАТ. Край на "майсторите"
-                            без договори.</p>
-                    </div>
-                    <div class="feature col text-center">
-                        <div
-                            class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3 text-primary">
-                            <i class="bi bi-file-earmark-ruled"></i>
-                        </div>
-                        <h3 class="fs-4" data-i18n="benefit_2_title">Гаранция и Договор</h3>
-                        <p data-i18n="benefit_2_desc">Всички услуги се извършват с официален договор и финансови
-                            документи (фактури).</p>
-                    </div>
-                    <div class="feature col text-center">
-                        <div
-                            class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3 text-warning">
-                            <i class="bi bi-star-fill"></i>
-                        </div>
-                        <h3 class="fs-4" data-i18n="benefit_3_title">Високо качество</h3>
-                        <p data-i18n="benefit_3_desc">Работете с професионалисти, които носят отговорност за свършената
-                            работа.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Categories Section -->
-        <section id="services" class="py-5">
-            <div class="container">
-                <h2 class="text-center mb-5 fw-bold" data-i18n="services_header">Нашите Услуги</h2>
-                <div class="row g-4" id="categories-container">
-                    <!-- Categories will be injected here via JS -->
-                </div>
-            </div>
-        </section>
-    </main>
-
-
-    <footer class="bg-dark text-white py-4 mt-5">
-        <div class="container text-center">
-            <p class="mb-0" data-i18n="footer_rights">© 2026 RemontCo. Всички права запазени.</p>
+            <h3 data-i18n="features.verified_title">Само Регистрирани Фирми</h3>
+            <p data-i18n="features.verified_desc">
+              Всички изпълнители са проверени юридически лица с валиден БУЛСТАТ/ЕИК
+            </p>
+          </div>
         </div>
-    </footer>
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box">
+            <div class="feature-icon">
+              <i class="bi bi-file-text"></i>
+            </div>
+            <h3 data-i18n="features.contracts_title">Законни Договори</h3>
+            <p data-i18n="features.contracts_desc">
+              Всяка работа се извършва с официален договор и фактура
+            </p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box">
+            <div class="feature-icon">
+              <i class="bi bi-star"></i>
+            </div>
+            <h3 data-i18n="features.quality_title">Гаранция за Качество</h3>
+            <p data-i18n="features.quality_desc">
+              Защита на потребителя и висок стандарт на изпълнение
+            </p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box">
+            <div class="feature-icon">
+              <i class="bi bi-eye"></i>
+            </div>
+            <h3 data-i18n="features.transparency_title">Пълна Прозрачност</h3>
+            <p data-i18n="features.transparency_desc">
+              Проследими оферти, договори и отчетност
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="/main.js"></script>
+  <!-- Service Categories Section -->
+  <section class="py-5">
+    <div class="container">
+      <h2 class="section-title" data-i18n="categories.title">Услуги</h2>
+      <div class="categories-slider-container position-relative px-md-5">
+        <button id="prevBtn" class="slider-arrow prev-arrow" aria-label="Previous">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <div class="categories-slider-viewport overflow-hidden">
+          <div class="row g-4 flex-nowrap" id="categories-grid"
+            style="transition: transform 0.4s ease-out; cursor: grab;">
+            <!-- Categories will be loaded dynamically -->
+            <div class="col-12 text-center">
+              <div class="spinner-border spinner-border-primary" role="status">
+                <span class="visually-hidden">Зареждане...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button id="nextBtn" class="slider-arrow next-arrow" aria-label="Next">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="py-5 bg-light">
+    <div class="container">
+      <h2 class="section-title" data-i18n="how_it_works.title">Как Работи</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="text-center p-4">
+            <div
+              class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
+              style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
+              1
+            </div>
+            <h4 data-i18n="how_it_works.step1_title">Публикувай Запитване</h4>
+            <p data-i18n="how_it_works.step1_desc">Опиши какво ти трябва и задай бюджет</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-center p-4">
+            <div
+              class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
+              style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
+              2
+            </div>
+            <h4 data-i18n="how_it_works.step2_title">Получи Оферти</h4>
+            <p data-i18n="how_it_works.step2_desc">Проверени фирми ти изпращат конкурентни оферти</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-center p-4">
+            <div
+              class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
+              style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
+              3
+            </div>
+            <h4 data-i18n="how_it_works.step3_title">Избери и Започни</h4>
+            <p data-i18n="how_it_works.step3_desc">Избери най-доброто предложение и започни работа</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-5 bg-gradient-primary text-white">
+    <div class="container text-center">
+      <h2 class="display-4 fw-bold mb-4" data-i18n="cta.title">Готов ли си да започнеш?</h2>
+      <p class="lead mb-4" data-i18n="cta.subtitle">Присъедини се към хиляди доволни клиенти, които намериха своя перфектен изпълнител</p>
+      <a href="/auth/register.html" class="btn btn-light btn-lg">
+        <span data-i18n="cta.button">Започни Сега</span> <i class="bi bi-arrow-right ms-2"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer (will be injected) -->
+  <div id="footer-container"></div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Page Script -->
+  <script type="module" src="/src/pages/index.js"></script>
 </body>
 
 </html>
