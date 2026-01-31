@@ -263,7 +263,8 @@
     "status_pending": "Чака одобрение",
     "status_approved": "Одобрена",
     "status_rejected": "Отхвърлена",
-    "status_closed": "Затворена"
+    "status_closed": "Затворена",
+    "edit_approval_warning": "След промяна, обявата ще бъде изпратена отново за одобрение от администратор."
   },
   "offers": {
     "send_offer": "Изпрати Оферта",

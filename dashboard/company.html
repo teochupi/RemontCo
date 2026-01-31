@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="bg">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="dashboard_company.title">Company Dashboard - RemontCo</title>
-  
+  <title data-i18n="dashboard_company.title">Фирмено Табло - RemontCo</title>
+
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
@@ -12,10 +13,11 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
+
 <body class="bg-light">
   <!-- Navigation -->
   <div id="navbar-container"></div>
-  
+
   <div class="container py-5 mt-5">
     <div class="row">
       <!-- Sidebar -->
@@ -31,17 +33,22 @@
             </div>
             <hr>
             <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
-              <button class="nav-link active text-start" id="v-pills-browse-tab" data-bs-toggle="pill" data-bs-target="#v-pills-browse" type="button" role="tab">
-                <i class="bi bi-search me-2"></i> <span data-i18n="dashboard_company.browse_ads">Find Work</span>
+              <button class="nav-link active text-start" id="v-pills-browse-tab" data-bs-toggle="pill"
+                data-bs-target="#v-pills-browse" type="button" role="tab">
+                <i class="bi bi-search me-2"></i> <span data-i18n="dashboard_company.browse_ads">Намери Работа</span>
               </button>
-              <button class="nav-link text-start" id="v-pills-offers-tab" data-bs-toggle="pill" data-bs-target="#v-pills-offers" type="button" role="tab">
-                <i class="bi bi-send-check me-2"></i> <span data-i18n="dashboard_company.my_offers">My Offers</span>
+              <button class="nav-link text-start" id="v-pills-offers-tab" data-bs-toggle="pill"
+                data-bs-target="#v-pills-offers" type="button" role="tab">
+                <i class="bi bi-send-check me-2"></i> <span data-i18n="dashboard_company.my_offers">Моите Оферти</span>
               </button>
-              <button class="nav-link text-start" id="v-pills-projects-tab" data-bs-toggle="pill" data-bs-target="#v-pills-projects" type="button" role="tab">
-                <i class="bi bi-tools me-2"></i> <span data-i18n="dashboard_company.active_projects">Active Projects</span>
+              <button class="nav-link text-start" id="v-pills-projects-tab" data-bs-toggle="pill"
+                data-bs-target="#v-pills-projects" type="button" role="tab">
+                <i class="bi bi-tools me-2"></i> <span data-i18n="dashboard_company.active_projects">Активни
+                  Проекти</span>
               </button>
-              <button class="nav-link text-start" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab">
-                <i class="bi bi-gear me-2"></i> <span data-i18n="dashboard_company.profile">Settings</span>
+              <button class="nav-link text-start" id="v-pills-profile-tab" data-bs-toggle="pill"
+                data-bs-target="#v-pills-profile" type="button" role="tab">
+                <i class="bi bi-gear me-2"></i> <span data-i18n="dashboard_company.profile">Настройки</span>
               </button>
             </div>
           </div>
@@ -53,7 +60,7 @@
         <div class="tab-content" id="v-pills-tabContent">
           <!-- Browse Jobs Tab -->
           <div class="tab-pane fade show active" id="v-pills-browse" role="tabpanel">
-            <h2 class="h4 mb-4" data-i18n="dashboard_company.available_jobs">Available Projects</h2>
+            <h2 class="h4 mb-4" data-i18n="dashboard_company.available_jobs">Свободни Проекти</h2>
             <div id="available-jobs-list" class="row g-4">
               <!-- Jobs injected here -->
               <div class="col-12 text-center py-5">
@@ -64,9 +71,9 @@
 
           <!-- My Offers Tab -->
           <div class="tab-pane fade" id="v-pills-offers" role="tabpanel">
-            <h2 class="h4 mb-4" data-i18n="dashboard_company.my_offers_title">Your Submitted Offers</h2>
+            <h2 class="h4 mb-4" data-i18n="dashboard_company.my_offers_title">Вашите Изпратени Оферти</h2>
             <div id="company-offers-list" class="row g-4">
-               <p class="text-muted">Loading your offers...</p>
+              <p class="text-muted">Loading your offers...</p>
             </div>
           </div>
 
@@ -105,7 +112,8 @@
             </div>
             <div class="mb-3">
               <label class="form-label">Message to Client</label>
-              <textarea class="form-control" id="offer-message" rows="4" required placeholder="Describe how you will help..."></textarea>
+              <textarea class="form-control" id="offer-message" rows="4" required
+                placeholder="Describe how you will help..."></textarea>
             </div>
             <div class="mb-3">
               <label class="form-label">Estimated Completion Time</label>
@@ -125,4 +133,5 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script type="module" src="/src/pages/company_dashboard.js"></script>
 </body>
+
 </html>

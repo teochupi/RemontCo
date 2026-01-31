@@ -3,6 +3,9 @@ import { initI18n, getCurrentLanguage, t, translatePage } from '../utils/i18n.js
 import { requireRole } from '../utils/guards.js';
 import { renderNavbar } from '../components/navbar.js';
 import { renderFooter } from '../components/footer.js';
+import { translateElement } from '../utils/i18n.js';
+
+let loadedJobs = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -181,7 +184,7 @@ function renderJobs(data) {
                         <p class="card-text text-dark opacity-75 text-truncate-3">${description}</p>
                         <div class="mt-4 border-top pt-3 d-flex justify-content-between align-items-center">
                             <span class="h5 mb-0 fw-bold text-primary">${job.budget_max ? job.budget_max + ' EUR' : t('common.negotiable')}</span>
-                            <button class="btn btn-sm btn-outline-primary px-4 rounded-pill fw-bold">
+                            <button class="btn btn-sm btn-outline-primary px-4 rounded-pill fw-bold view-job-btn" data-id="${job.id}">
                                 <i class="bi bi-eye me-1"></i> ${t('common.view')}
                             </button>
                         </div>
@@ -194,7 +197,8 @@ function renderJobs(data) {
 
 async function loadCategories() {
     const categorySelect = document.getElementById('job-category');
-    if (!categorySelect) return;
+    const editCategorySelect = document.getElementById('edit-job-category');
+    if (!categorySelect && !editCategorySelect) return;
 
     try {
         const { data, error } = await supabase
@@ -208,10 +212,19 @@ async function loadCategories() {
         const currentLang = getCurrentLanguage();
 
         data.forEach(cat => {
-            const option = document.createElement('option');
-            option.value = cat.id;
-            option.textContent = currentLang === 'bg' ? cat.name_bg : cat.name_en;
-            categorySelect.appendChild(option);
+            const name = currentLang === 'bg' ? cat.name_bg : cat.name_en;
+            if (categorySelect) {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = name;
+                categorySelect.appendChild(option);
+            }
+            if (editCategorySelect) {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = name;
+                editCategorySelect.appendChild(option);
+            }
         });
     } catch (err) {
         console.error('Error loading categories:', err);
@@ -234,6 +247,7 @@ async function loadUserJobs(userId) {
 
         if (error) throw error;
 
+        loadedJobs = data;
         renderJobs(data);
 
     } catch (err) {
@@ -253,6 +267,18 @@ function getStatusBadgeClass(status) {
 }
 
 function setupEventListeners(userId, isDemo = false) {
+    // Handle view/edit button clicks
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.view-job-btn');
+        if (btn) {
+            const jobId = btn.dataset.id;
+            const job = loadedJobs.find(j => j.id === jobId);
+            if (job) {
+                openEditModal(job);
+            }
+        }
+    });
+
     const jobForm = document.getElementById('post-job-form');
     if (jobForm) {
         if (isDemo) {
@@ -341,6 +367,53 @@ function setupEventListeners(userId, isDemo = false) {
         });
     }
 
+    const editJobForm = document.getElementById('edit-job-form');
+    if (editJobForm) {
+        editJobForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (isDemo) {
+                alert(t('demo.edit_disabled'));
+                return;
+            }
+
+            const btn = editJobForm.querySelector('button[type="submit"]');
+            btn.disabled = true;
+
+            const jobId = document.getElementById('edit-job-id').value;
+            const jobData = {
+                title: document.getElementById('edit-job-title').value,
+                category_id: document.getElementById('edit-job-category').value,
+                description: document.getElementById('edit-job-description').value,
+                city: document.getElementById('edit-job-location').value,
+                budget_max: document.getElementById('edit-job-budget').value || null,
+                status: 'pending', // Send back for approval
+                updated_at: new Date().toISOString()
+            };
+
+            try {
+                const { error } = await supabase
+                    .from('jobs')
+                    .update(jobData)
+                    .eq('id', jobId);
+
+                if (error) throw error;
+
+                // Close modal
+                const modalEl = document.getElementById('editJobModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+
+                alert(t('messages.success'));
+                loadUserJobs(userId);
+            } catch (err) {
+                alert(t('common.error') + ': ' + err.message);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    }
+
     const logoutBtn = document.getElementById('logout-btn-profile');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
@@ -372,4 +445,21 @@ function handleHashNavigation() {
         const jobsTab = document.getElementById('v-pills-jobs-tab');
         if (jobsTab) jobsTab.click();
     }
+}
+
+/**
+ * Open edit modal and populate with job data
+ * @param {Object} job - Job data
+ */
+function openEditModal(job) {
+    document.getElementById('edit-job-id').value = job.id;
+    document.getElementById('edit-job-title').value = job.title;
+    document.getElementById('edit-job-category').value = job.category_id;
+    document.getElementById('edit-job-location').value = job.city || job.location;
+    document.getElementById('edit-job-description').value = job.description;
+    document.getElementById('edit-job-budget').value = job.budget_max || '';
+
+    const modalEl = document.getElementById('editJobModal');
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
 }

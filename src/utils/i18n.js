@@ -1,6 +1,11 @@
 import { supabase } from '../services/supabase.js';
 
-let currentLanguage = localStorage.getItem('remontco_language') || 'bg';
+let currentLanguage = 'bg';
+try {
+  currentLanguage = localStorage.getItem('remontco_language') || 'bg';
+} catch (e) {
+  console.warn('LocalStorage not accessible, defaulting to BG');
+}
 let translations = {};
 
 /**
@@ -8,12 +13,13 @@ let translations = {};
  */
 export async function initI18n() {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-
     // Explicitly check if we have a saved language, otherwise default to 'bg'
-    if (!localStorage.getItem('remontco_language')) {
+    const savedLang = localStorage.getItem('remontco_language');
+    if (!savedLang || (savedLang !== 'bg' && savedLang !== 'en')) {
       localStorage.setItem('remontco_language', 'bg');
       currentLanguage = 'bg';
+    } else {
+      currentLanguage = savedLang;
     }
 
     await loadLanguage(currentLanguage);

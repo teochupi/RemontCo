@@ -263,7 +263,8 @@
     "status_pending": "Pending Approval",
     "status_approved": "Approved",
     "status_rejected": "Rejected",
-    "status_closed": "Closed"
+    "status_closed": "Closed",
+    "edit_approval_warning": "After making changes, the ad will be sent back for admin approval."
   },
   "offers": {
     "send_offer": "Send Offer",
