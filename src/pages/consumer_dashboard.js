@@ -331,6 +331,13 @@ function setupEventListeners(userId, isDemo = false) {
 
     const profileForm = document.getElementById('profile-form');
     if (profileForm) {
+        if (isDemo) {
+            const btn = profileForm.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.innerHTML = `<i class="bi bi-slash-circle me-2"></i> ${t('demo.save_disabled')}`;
+                btn.classList.replace('btn-primary', 'btn-secondary');
+            }
+        }
         profileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -369,6 +376,13 @@ function setupEventListeners(userId, isDemo = false) {
 
     const editJobForm = document.getElementById('edit-job-form');
     if (editJobForm) {
+        if (isDemo) {
+            const btn = editJobForm.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.innerHTML = `<i class="bi bi-slash-circle me-2"></i> ${t('demo.save_disabled')}`;
+                btn.classList.replace('btn-primary', 'btn-secondary');
+            }
+        }
         editJobForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 

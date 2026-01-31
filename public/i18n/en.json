@@ -187,6 +187,7 @@
     "notice": "<strong>Demo Mode:</strong> You are browsing as a Demo User. You can explore all features, but you cannot post real ads or change settings.",
     "post_disabled": "Posting is disabled in Demo mode",
     "edit_disabled": "You cannot change settings in Demo mode",
+    "save_disabled": "Saving is disabled in Demo",
     "demo_alert": "This is a Demo account. This feature is restricted.",
     "no_companies": "No companies found.",
     "no_description": "No description available."
