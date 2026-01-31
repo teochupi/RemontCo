@@ -301,8 +301,9 @@ Each category supports unlimited subcategories via hierarchical structure.
 After setting up the database, create a demo admin user:
 
 **Admin**
-- Email or Username: `demo`
-- Password: `demo123`
+- Email: `teodor.chupetlov@abv.bg`
+- Username: `admin`
+- Password: `admin123`
 
 Create test accounts via registration pages for other roles.
 

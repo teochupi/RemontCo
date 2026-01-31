@@ -70,16 +70,16 @@ Execute the SQL files in order using the Supabase SQL Editor:
 1. Go to **Authentication** → **Users**
 2. Click **Add User** → **Create new user**
 3. Fill in:
-   - **Email**: `admin@remontco.bg`
-   - **Password**: `Admin123!` (or your choice)
+   - **Email**: `teodor.chupetlov@abv.bg`
+   - **Password**: `admin123`
    - **Auto Confirm User**: ✓ (checked)
 4. Click **Create user**
 
 5. Go to **SQL Editor** and run:
    ```sql
    UPDATE profiles 
-   SET role = 'admin' 
-   WHERE id = (SELECT id FROM auth.users WHERE email = 'admin@remontco.bg');
+   SET role = 'admin', username = 'admin' 
+   WHERE id = (SELECT id FROM auth.users WHERE email = 'teodor.chupetlov@abv.bg');
    ```
 
 ### 6. Enable Storage (Optional)

@@ -77,10 +77,10 @@ INSERT INTO service_categories (parent_id, name_bg, name_en, slug, order_index) 
 -- DEMO ADMIN USER
 -- =====================================================
 -- Note: This should be created via Supabase Auth UI or API
--- Email: admin@remontco.bg
--- Password: Admin123!
+-- Email: teodor.chupetlov@abv.bg
+-- Password: admin123
 -- After creating in Supabase Auth, update the profile:
--- UPDATE profiles SET role = 'admin' WHERE email = 'admin@remontco.bg';
+-- UPDATE profiles SET role = 'admin', username = 'admin' WHERE email = 'teodor.chupetlov@abv.bg';
 
 -- =====================================================
 -- END OF SEED DATA

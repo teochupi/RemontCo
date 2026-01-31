@@ -27,16 +27,16 @@ ON CONFLICT (slug) DO NOTHING;
   
   1. Отидете в Supabase Dashboard -> Authentication.
   2. Създайте ръчно (Add user) двата акаунта:
-     - Admin: teoch@remont.co (или друг имейл) с парола 0898208867
+     - Admin: teodor.chupetlov@abv.bg с парола admin123
      - Demo: demo@remont.co с парола demo123 (или просто demo/demo123 ако ползвате username, но Supabase предпочита имейли)
   3. След като ги създадете, изпълнете следния SQL, за да им дадете правилните роли:
 
   UPDATE public.profiles 
-  SET role = 'admin', first_name = 'Teodor', last_name = 'Chupetlov'
-  WHERE email = 'teoch@remont.co';
+  SET role = 'admin', first_name = 'Teodor', last_name = 'Chupetlov', username = 'admin'
+  WHERE email = 'teodor.chupetlov@abv.bg';
 
   UPDATE public.profiles 
-  SET role = 'demo'
+  SET role = 'demo', username = 'demo'
   WHERE email = 'demo@remont.co';
 */
 
