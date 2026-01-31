@@ -96,12 +96,12 @@ function renderJobList(data) {
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <div class="d-flex align-items-center gap-2 mb-2">
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill small uppercase">Job Request</span>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill small uppercase">${t('admin.job_request')}</span>
                                 <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> ${new Date(job.created_at).toLocaleDateString()}</small>
                             </div>
                             <h5 class="fw-bold mb-1">${job.title}</h5>
                             <p class="text-muted small mb-3">
-                                <i class="bi bi-person me-1"></i> ${job.profiles?.first_name || 'Consumer'} ${job.profiles?.last_name || ''} 
+                                <i class="bi bi-person me-1"></i> ${job.profiles?.first_name || t('admin.consumer')} ${job.profiles?.last_name || ''} 
                                 <span class="mx-2 text-silver">|</span> 
                                 <i class="bi bi-envelope me-1"></i> ${job.profiles?.email || 'N/A'}
                             </p>
@@ -131,7 +131,8 @@ function renderJobList(data) {
 }
 
 async function updateJobStatus(id, status) {
-    if (!confirm(`Сигурни ли сте, че искате да ${status === 'approved' ? 'одобрите' : 'отхвърлите'} тази обява?`)) return;
+    const confirmMsg = status === 'approved' ? t('admin.confirm_approve') : t('admin.confirm_reject');
+    if (!confirm(confirmMsg)) return;
 
     try {
         const { error } = await supabase
@@ -174,13 +175,13 @@ async function loadPendingCompanies() {
                 <td><i class="bi bi-geo-alt me-1 text-muted"></i>${company.city}</td>
                 <td>
                     <span class="badge ${company.is_verified ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-warning-subtle text-warning border border-warning-subtle'} px-3 py-2 rounded-pill">
-                        ${company.is_verified ? 'Верифицирана' : 'Чакаща'}
+                        ${company.is_verified ? t('company.verified') : t('admin.pending')}
                     </span>
                 </td>
                 <td>
                     <button class="btn btn-sm ${company.is_verified ? 'btn-outline-danger' : 'btn-primary'} rounded-pill px-3 verify-btn shadow-sm" 
                             data-id="${company.id}" data-status="${company.is_verified}">
-                        ${company.is_verified ? 'Отмени' : 'Верифицирай'}
+                        ${company.is_verified ? t('common.cancel') : t('admin.verify')}
                     </button>
                 </td>
             </tr>

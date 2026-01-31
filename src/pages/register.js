@@ -60,7 +60,7 @@ function setupConsumerForm() {
     const confirmPassword = document.getElementById('consumerConfirmPassword').value;
 
     if (password !== confirmPassword) {
-      showAlert('danger', 'Passwords do not match');
+      showAlert('danger', t('messages.password_mismatch'));
       return;
     }
 
@@ -106,7 +106,7 @@ function setupCompanyForm() {
     const confirmPassword = document.getElementById('companyConfirmPassword').value;
 
     if (password !== confirmPassword) {
-      showAlert('danger', 'Passwords do not match');
+      showAlert('danger', t('messages.password_mismatch'));
       return;
     }
 
@@ -128,7 +128,7 @@ function setupCompanyForm() {
         }
       );
 
-      showAlert('success', 'Company registered successfully! Awaiting admin verification.');
+      showAlert('success', t('messages.register_company_success'));
 
       setTimeout(() => {
         window.location.href = '/auth/login.html';

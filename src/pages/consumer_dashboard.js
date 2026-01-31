@@ -184,9 +184,16 @@ function renderJobs(data) {
                         <p class="card-text text-dark opacity-75 text-truncate-3">${description}</p>
                         <div class="mt-4 border-top pt-3 d-flex justify-content-between align-items-center">
                             <span class="h5 mb-0 fw-bold text-primary">${job.budget_max ? job.budget_max + ' EUR' : t('common.negotiable')}</span>
-                            <button class="btn btn-sm btn-outline-primary px-4 rounded-pill fw-bold view-job-btn" data-id="${job.id}">
-                                <i class="bi bi-eye me-1"></i> ${t('common.view')}
-                            </button>
+                            <div class="d-flex gap-2">
+                                ${job.quotes_count > 0 ? `
+                                    <button class="btn btn-sm btn-success px-4 rounded-pill fw-bold view-offers-btn" data-id="${job.id}">
+                                        <i class="bi bi-chat-left-text me-1"></i> ${job.quotes_count} ${t('dashboard_consumer.offers')}
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-sm btn-outline-primary px-4 rounded-pill fw-bold view-job-btn" data-id="${job.id}">
+                                    <i class="bi bi-pencil me-1"></i> ${t('common.edit')}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -240,15 +247,33 @@ async function loadUserJobs(userId) {
             .from('jobs')
             .select(`
                 *,
-                category:service_categories(name_bg, name_en)
+                category:service_categories(name_bg, name_en),
+                quotes:quotes(
+                    id, 
+                    price, 
+                    message, 
+                    status, 
+                    created_at,
+                    is_hidden_by_consumer,
+                    company:companies(name, city, is_verified)
+                )
             `)
             .eq('consumer_id', userId)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
 
-        loadedJobs = data;
-        renderJobs(data);
+        // Filter out hidden quotes and recalculate count
+        loadedJobs = data.map(job => {
+            const visibleQuotes = (job.quotes || []).filter(q => !q.is_hidden_by_consumer);
+            return {
+                ...job,
+                quotes: visibleQuotes,
+                quotes_count: visibleQuotes.length
+            };
+        });
+
+        renderJobs(loadedJobs);
 
     } catch (err) {
         console.error('Error loading jobs:', err);
@@ -268,13 +293,22 @@ function getStatusBadgeClass(status) {
 
 function setupEventListeners(userId, isDemo = false) {
     // Handle view/edit button clicks
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.view-job-btn');
-        if (btn) {
-            const jobId = btn.dataset.id;
+    document.addEventListener('click', async (e) => {
+        const viewBtn = e.target.closest('.view-job-btn');
+        if (viewBtn) {
+            const jobId = viewBtn.dataset.id;
             const job = loadedJobs.find(j => j.id === jobId);
             if (job) {
                 openEditModal(job);
+            }
+        }
+
+        const offersBtn = e.target.closest('.view-offers-btn');
+        if (offersBtn) {
+            const jobId = offersBtn.dataset.id;
+            const job = loadedJobs.find(j => j.id === jobId);
+            if (job) {
+                openOffersModal(job);
             }
         }
     });
@@ -436,13 +470,126 @@ function setupEventListeners(userId, isDemo = false) {
         });
     }
 
-    const tabButtons = document.querySelectorAll('button[data-bs-toggle="pill"]');
-    tabButtons.forEach(btn => {
-        btn.addEventListener('shown.bs.tab', (e) => {
-            const hash = e.target.getAttribute('data-bs-target').replace('#v-pills-', '#');
-            history.replaceState(null, null, hash);
+    // Delegation for Job Card Buttons
+    const jobsList = document.getElementById('jobs-list');
+    if (jobsList) {
+        jobsList.addEventListener('click', async (e) => {
+            const viewJobBtn = e.target.closest('.view-job-btn');
+            const viewOffersBtn = e.target.closest('.view-offers-btn');
+
+            if (viewJobBtn) {
+                const jobId = viewJobBtn.dataset.id;
+                const job = loadedJobs.find(j => j.id === jobId);
+                if (job) openEditModal(job);
+            }
+
+            if (viewOffersBtn) {
+                const jobId = viewOffersBtn.dataset.id;
+                const job = loadedJobs.find(j => j.id === jobId);
+                if (job) await openOffersModal(job);
+            }
         });
-    });
+    }
+
+    // Delegation for Offer Action Buttons (Accept/Reject)
+    const offersContainer = document.getElementById('offers-container');
+    if (offersContainer) {
+        offersContainer.addEventListener('click', async (e) => {
+            const acceptBtn = e.target.closest('.accept-quote-btn');
+            const rejectBtn = e.target.closest('.reject-quote-btn');
+            const deleteBtn = e.target.closest('.delete-quote-btn');
+
+            if (acceptBtn) {
+                const quoteId = acceptBtn.dataset.id;
+                const jobId = acceptBtn.dataset.jobId;
+                await acceptQuote(quoteId, jobId);
+            }
+
+            if (rejectBtn) {
+                const quoteId = rejectBtn.dataset.id;
+                await rejectQuote(quoteId);
+            }
+
+            if (deleteBtn) {
+                const quoteId = deleteBtn.dataset.id;
+                await hideQuoteForConsumer(quoteId);
+            }
+        });
+    }
+}
+
+async function acceptQuote(quoteId, jobId) {
+    if (!confirm('Сигурни ли сте, че искате да потвърдите получаването на тази оферта?')) return;
+
+    try {
+        // 1. Accept the quote
+        const { error: quoteError } = await supabase
+            .from('quotes')
+            .update({ status: 'accepted' })
+            .eq('id', quoteId);
+
+        if (quoteError) throw quoteError;
+
+        alert('Получаването е потвърдено успешно!');
+
+        // Reload dashboard
+        const modal = bootstrap.Modal.getInstance(document.getElementById('offersModal'));
+        if (modal) modal.hide();
+
+        const user = await supabase.auth.getUser();
+        await loadUserJobs(user.data.user.id);
+
+    } catch (err) {
+        console.error('Error accepting quote:', err);
+        alert('Грешка при приемане на офертата: ' + err.message);
+    }
+}
+
+async function hideQuoteForConsumer(quoteId) {
+    if (!confirm('Сигурни ли сте, че искате да премахнете тази оферта от вашия списък?')) return;
+
+    try {
+        const { error } = await supabase
+            .from('quotes')
+            .update({ is_hidden_by_consumer: true })
+            .eq('id', quoteId);
+
+        if (error) throw error;
+
+        // Hide modal and refresh
+        const modal = bootstrap.Modal.getInstance(document.getElementById('offersModal'));
+        if (modal) modal.hide();
+
+        const user = await supabase.auth.getUser();
+        await loadUserJobs(user.data.user.id);
+    } catch (err) {
+        console.error('Error hiding quote:', err);
+        alert('Грешка при премахване на офертата.');
+    }
+}
+async function rejectQuote(quoteId) {
+    if (!confirm('Сигурни ли сте, че искате да отхвърлите тази оферта?')) return;
+
+    try {
+        const { error } = await supabase
+            .from('quotes')
+            .update({ status: 'rejected' })
+            .eq('id', quoteId);
+
+        if (error) throw error;
+
+        alert('Офертата беше отхвърлена.');
+
+        // Refresh the quotes view in the modal if possible, or just reload the whole page
+        const modal = bootstrap.Modal.getInstance(document.getElementById('offersModal'));
+        if (modal) modal.hide();
+
+        const user = await supabase.auth.getUser();
+        await loadUserJobs(user.data.user.id);
+    } catch (err) {
+        console.error('Error rejecting quote:', err);
+        alert('Грешка при отхвърляне на офертата.');
+    }
 }
 
 function handleHashNavigation() {
@@ -474,6 +621,106 @@ function openEditModal(job) {
     document.getElementById('edit-job-budget').value = job.budget_max || '';
 
     const modalEl = document.getElementById('editJobModal');
-    const modal = new bootstrap.Modal(modalEl);
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
+}
+/**
+ * Open offers modal and show received quotes
+ * @param {Object} job - Job data
+ */
+async function openOffersModal(job) {
+    const modalEl = document.getElementById('offersModal');
+    const container = document.getElementById('offers-container');
+
+    document.getElementById('offersModalLabel').textContent = `${t('dashboard_consumer.offers')} за: ${job.title}`;
+
+    container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modal.show();
+
+    try {
+        // Fetch files for these quotes
+        const quoteIds = job.quotes.map(q => q.id);
+        const { data: media, error: mediaError } = await supabase
+            .from('media')
+            .select('*')
+            .in('entity_id', quoteIds)
+            .eq('entity_type', 'quote');
+
+        if (mediaError) {
+            console.error('Media fetch error:', mediaError);
+            throw mediaError;
+        }
+
+        console.log(`Fetched ${media?.length || 0} files for ${quoteIds.length} quotes`);
+
+        if (!job.quotes || job.quotes.length === 0) {
+            container.innerHTML = '<p class="text-center py-4">Няма получени оферти.</p>';
+            return;
+        }
+
+        container.innerHTML = job.quotes.map(quote => {
+            const quoteFiles = media.filter(m => m.entity_id === quote.id);
+            return `
+                <div class="card border-0 shadow-sm rounded-4 mb-3 ${quote.status === 'rejected' ? 'opacity-50' : ''}">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h6 class="fw-bold mb-0">${quote.company?.name}</h6>
+                                <small class="text-muted"><i class="bi bi-geo-alt me-1"></i> ${quote.company?.city}</small>
+                                ${quote.company?.is_verified ? '<span class="badge bg-success-subtle text-success ms-2 small">Проверена</span>' : ''}
+                            </div>
+                            <div class="text-end">
+                                <span class="fs-5 fw-bold text-primary">${quote.price} лв.</span>
+                                <div><small class="badge ${quote.status === 'accepted' ? 'bg-success' : quote.status === 'rejected' ? 'bg-danger' : 'bg-primary-subtle text-primary border border-primary-subtle'} px-2 py-1">${t('offers.status_' + quote.status)}</small></div>
+                            </div>
+                            <div class="ms-3">
+                                <button class="btn btn-sm btn-link text-danger p-1 delete-quote-btn" data-id="${quote.id}" title="Премахни от списъка">
+                                    <i class="bi bi-x-circle fs-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-3">${quote.message}</p>
+                        
+                        ${quoteFiles.length > 0 ? `
+                            <div class="bg-light p-3 rounded-4 mb-3 border border-dashed">
+                                <h6 class="small fw-bold mb-2">Прикачени документи:</h6>
+                                <div class="row g-2">
+                                    ${quoteFiles.map(file => `
+                                        <div class="col-sm-6">
+                                            <a href="${file.file_url}" target="_blank" class="d-flex align-items-center p-2 bg-white rounded-3 border text-decoration-none hover-shadow transition-all">
+                                                <div class="bg-primary-subtle text-primary rounded-circle p-2 me-2">
+                                                    <i class="bi bi-file-earmark-arrow-down fs-5"></i>
+                                                </div>
+                                                <div class="overflow-hidden">
+                                                    <div class="small fw-bold text-dark text-truncate">${file.file_name}</div>
+                                                    <div class="x-small text-muted">Виж/Изтегли</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        ${quote.status === 'pending' ? `
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-primary rounded-pill px-4 accept-quote-btn" data-id="${quote.id}" data-job-id="${job.id}">
+                                    <i class="bi bi-check-lg me-1"></i> Потвърждение за получаване
+                                </button>
+                                <button class="btn btn-outline-secondary rounded-pill px-4 reject-quote-btn" data-id="${quote.id}">
+                                    Отхвърли
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (err) {
+        console.error('Error loading offers:', err);
+        container.innerHTML = '<div class="alert alert-danger">Грешка при зареждане на офертите.</div>';
+    }
 }

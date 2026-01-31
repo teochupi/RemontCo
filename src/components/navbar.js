@@ -38,12 +38,8 @@ export async function renderNavbar(container) {
           <li class="nav-item">
             <a class="nav-link text-white fw-bold" href="/about.html" data-i18n="nav.about">${t('nav.about')}</a>
           </li>
-          ${authenticated ? `
-            <li class="nav-item">
-              <a class="nav-link text-white fw-bold" href="${getDashboardUrl(user?.role)}" data-i18n="nav.dashboard">${t('nav.dashboard')}</a>
-            </li>
-          ` : ''}
         </ul>
+
         
         <ul class="navbar-nav align-items-lg-center">
           <!-- Language Switcher -->

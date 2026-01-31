@@ -181,7 +181,20 @@
     "no_pending_jobs": "There are no new ads pending approval at the moment.",
     "no_pending_companies": "No companies pending verification.",
     "moderation_queue": "Moderation Queue",
-    "load_error": "No pending ads found or an error occurred during loading."
+    "load_error": "No pending ads found or an error occurred during loading.",
+    "pending": "Pending",
+    "verify": "Verify",
+    "table": {
+      "company": "Company",
+      "eik": "UIC/VAT",
+      "city": "City",
+      "status": "Status",
+      "action": "Action"
+    },
+    "confirm_approve": "Are you sure you want to approve this ad?",
+    "confirm_reject": "Are you sure you want to reject this ad?",
+    "job_request": "Job Request",
+    "consumer": "Consumer"
   },
   "demo": {
     "notice": "<strong>Demo Mode:</strong> You are browsing as a Demo User. You can explore all features, but you cannot post real ads or change settings.",
@@ -204,6 +217,7 @@
     "post_job": "Post a New Job",
     "profile": "Edit Profile",
     "active_jobs": "Your Active Requests",
+    "offers": "Offers",
     "post_title": "Describe Your Project",
     "profile_settings": "Security & Identity",
     "no_jobs": "You haven't posted any ads yet."
@@ -236,9 +250,9 @@
     "high": "Urgent (As soon as possible)"
   },
   "company": {
-    "verified": "Verified",
+    "verified": "Verified Company",
     "not_verified": "Not Verified",
-    "pending": "Pending Verification",
+    "pending": "Pending Approval",
     "services_offered": "Services Offered",
     "contact": "Contact",
     "view_profile": "View Profile",
@@ -246,7 +260,31 @@
     "browse_subtitle": "Browse registered and verified construction companies",
     "search_placeholder": "Search companies...",
     "all_categories": "All Categories",
-    "all_cities": "All Cities"
+    "all_cities": "All Cities",
+    "edit_profile": "Edit Profile",
+    "sent_offers": "Sent Offers",
+    "find_work": "Find Work"
+  },
+  "offers": {
+    "send_offer": "Send Offer",
+    "price": "Price",
+    "timeline": "Timeline",
+    "message": "Message",
+    "accept": "Accept",
+    "reject": "Reject",
+    "status_pending": "Sent",
+    "status_accepted": "Accepted",
+    "status_rejected": "Rejected",
+    "price_label": "Offered Price (BGN)",
+    "message_label": "Message to Client",
+    "message_placeholder": "Describe how you will help...",
+    "timeline_label": "Completion Time (days)",
+    "file_label": "Attach Document (PDF, Word)",
+    "file_hint": "Optional: You can add a detailed offer or project scope.",
+    "rejected": "Rejected",
+    "verification_pending": "Pending Verification",
+    "verified_badge": "Verified",
+    "pending_badge": "Pending Approval"
   },
   "ads": {
     "title": "Title",
@@ -266,17 +304,6 @@
     "status_rejected": "Rejected",
     "status_closed": "Closed",
     "edit_approval_warning": "After making changes, the ad will be sent back for admin approval."
-  },
-  "offers": {
-    "send_offer": "Send Offer",
-    "price": "Price",
-    "timeline": "Timeline",
-    "message": "Message",
-    "accept": "Accept",
-    "reject": "Reject",
-    "status_pending": "Pending",
-    "status_accepted": "Accepted",
-    "status_rejected": "Rejected"
   },
   "common": {
     "save": "Save Changes",
@@ -302,7 +329,9 @@
     "login_success": "Successfully logged in",
     "login_error": "Login error",
     "register_success": "Registration successful. Please check your email.",
+    "register_company_success": "Company registered successfully! Awaiting admin verification.",
     "register_error": "Registration error",
+    "password_mismatch": "Passwords do not match",
     "username_taken": "This username is already taken.",
     "unauthorized": "You don't have access to this page",
     "company_only": "Ads are visible only to registered companies after approval",
