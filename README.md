@@ -89,18 +89,23 @@ This creates a fair, legal, and professional marketplace that benefits:
 - ✅ Client-side route guards
 - ✅ Company verification workflow
 
-### 🔔 Automated Notifications
-The platform includes a robust notification system powered by **Supabase Edge Functions** and **Brevo API**:
+### 🔔 Automated Notifications & Email Dispatch
+The platform features a sophisticated real-time notification system powered by **Supabase Edge Functions**, **Database Webhooks**, and the **Brevo SMTP/API**. This ensures that users don't have to stay logged in to be informed about their activity.
+
+**Key Email Workflows:**
+- 💬 **Direct Communication**: When a message is sent via the platform's chat/message system, the recipient receives an **instant email notification** containing a preview of the message and a link to respond.
 - 📧 **For Consumers**:
-  - Instant email alerts for new messages.
-  - Notifications when a new quote/offer is received.
-  - Alerts if an ad/job needs modification (rejection reasons).
+  - Receive alerts for every new **quote/offer** submitted by a company.
+  - Receive notifications if an ad/job posting is **moderated** (approved, rejected, or needs revision).
 - 📧 **For Companies**:
-  - Notifications for new messages from clients.
+  - Alerts for new **job opportunities** in their selected categories.
+  - Notifications when their registration is **verified** by an administrator.
 - 📧 **For Administrators**:
-  - Alerts for new job postings requiring approval.
-  - Notifications for new company registrations awaiting verification.
-- 🌍 **Internationalization**: All emails are professionally designed and support **Bulgarian (Cyrillic)** without encoding issues.
+  - Instant alerts for new company registrations and job postings requiring approval.
+
+**Technical Excellence:**
+- **Asynchronous Processing**: Emails are dispatched via serverless Edge Functions triggered by database webhooks, ensuring zero performance impact on the user interface.
+- **Multilingual Support**: All system emails automatically match the user's preferred language (**Bulgarian** or **English**) with full UTF-8/Cyrillic support.
 
 ---
 
