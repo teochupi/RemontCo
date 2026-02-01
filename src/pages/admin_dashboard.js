@@ -36,7 +36,7 @@ async function loadPendingJobs() {
         // Try fetching without profiles first to see if that's the issue
         const { data, error } = await supabase
             .from('jobs')
-            .select('*, profiles(first_name, last_name, email)') // Supabase usually handles this if FK is set
+            .select('*, profiles(username, first_name, last_name, email)')
             .eq('status', 'pending')
             .order('created_at', { ascending: false });
 
@@ -101,18 +101,19 @@ function renderJobList(data) {
                             </div>
                             <h5 class="fw-bold mb-1">${job.title}</h5>
                             <p class="text-muted small mb-3">
-                                <i class="bi bi-person me-1"></i> ${job.profiles?.first_name || t('admin.consumer')} ${job.profiles?.last_name || ''} 
+                                <i class="bi bi-person me-1"></i> ${job.profiles?.username || (job.profiles?.first_name ? `${job.profiles.first_name} ${job.profiles.last_name || ''}` : null) || t('admin.consumer')} 
                                 <span class="mx-2 text-silver">|</span> 
                                 <i class="bi bi-envelope me-1"></i> ${job.profiles?.email || 'N/A'}
                             </p>
-                            <p class="mb-0 text-dark opacity-75 fs-6">${job.description}</p>
+                            <p class="mb-2 text-dark opacity-75 fs-6">${job.description}</p>
+                            <div class="fw-bold text-primary"><i class="bi bi-wallet2 me-1"></i> ${job.budget_max ? job.budget_max + ' EUR' : t('common.negotiable')}</div>
                         </div>
                         <div class="col-md-4 text-md-end mt-3 mt-md-0">
                             <button class="btn btn-success rounded-pill approve-job-btn px-4" data-id="${job.id}">
                                 <i class="bi bi-check-circle-fill me-2"></i> ${t('common.confirm')}
                             </button>
-                            <button class="btn btn-link text-danger text-decoration-none reject-job-btn fw-bold ms-2" data-id="${job.id}">
-                                ${t('common.delete')}
+                            <button class="btn btn-outline-danger rounded-pill moderate-job-btn px-4 ms-2" data-id="${job.id}">
+                                <i class="bi bi-exclamation-triangle me-1"></i> Модерирай
                             </button>
                         </div>
                     </div>
@@ -125,19 +126,54 @@ function renderJobList(data) {
     document.querySelectorAll('.approve-job-btn').forEach(btn => {
         btn.addEventListener('click', () => updateJobStatus(btn.dataset.id, 'approved'));
     });
-    document.querySelectorAll('.reject-job-btn').forEach(btn => {
-        btn.addEventListener('click', () => updateJobStatus(btn.dataset.id, 'rejected'));
+    document.querySelectorAll('.moderate-job-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('moderation-id').value = btn.dataset.id;
+            document.getElementById('moderation-type').value = 'job';
+            document.getElementById('moderationModalLabel').innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i> Модериране на обява';
+            document.getElementById('moderation-reason').value = '';
+            const modal = new bootstrap.Modal(document.getElementById('moderationModal'));
+            modal.show();
+        });
     });
+
+    // Handle moderation confirmation
+    const confirmBtn = document.getElementById('confirm-moderation-btn');
+    if (confirmBtn && !confirmBtn.dataset.listener) {
+        confirmBtn.addEventListener('click', async () => {
+            const id = document.getElementById('moderation-id').value;
+            const type = document.getElementById('moderation-type').value;
+            const reason = document.getElementById('moderation-reason').value;
+            if (!reason) {
+                alert('Моля посочете причина!');
+                return;
+            }
+            if (type === 'job') {
+                await updateJobStatus(id, 'rejected', reason);
+            } else {
+                await updateCompanyStatus(id, false, reason);
+            }
+            const modal = bootstrap.Modal.getInstance(document.getElementById('moderationModal'));
+            if (modal) modal.hide();
+        });
+        confirmBtn.dataset.listener = "true";
+    }
 }
 
-async function updateJobStatus(id, status) {
-    const confirmMsg = status === 'approved' ? t('admin.confirm_approve') : t('admin.confirm_reject');
-    if (!confirm(confirmMsg)) return;
+async function updateJobStatus(id, status, reason = null) {
+    const confirmMsg = status === 'approved' ? t('admin.confirm_approve') : 'Сигурни ли сте, че искате да върнете тази обява за редакция?';
+    if (!reason && !confirm(confirmMsg)) return;
 
     try {
+        const updateData = {
+            status: status,
+            approved_at: status === 'approved' ? new Date().toISOString() : null
+        };
+        if (reason) updateData.moderation_reason = reason;
+
         const { error } = await supabase
             .from('jobs')
-            .update({ status: status, approved_at: status === 'approved' ? new Date().toISOString() : null })
+            .update(updateData)
             .eq('id', id);
 
         if (error) throw error;
@@ -179,9 +215,13 @@ async function loadPendingCompanies() {
                     </span>
                 </td>
                 <td>
-                    <button class="btn btn-sm ${company.is_verified ? 'btn-outline-danger' : 'btn-primary'} rounded-pill px-3 verify-btn shadow-sm" 
+                    <button class="btn btn-sm btn-success rounded-pill px-3 verify-btn shadow-sm" 
                             data-id="${company.id}" data-status="${company.is_verified}">
-                        ${company.is_verified ? t('common.cancel') : t('admin.verify')}
+                        <i class="bi bi-check-circle me-1"></i> ${t('admin.verify')}
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3 moderate-company-btn shadow-sm ms-2" 
+                            data-id="${company.id}">
+                        <i class="bi bi-exclamation-triangle me-1"></i> Модерирай
                     </button>
                 </td>
             </tr>
@@ -189,25 +229,51 @@ async function loadPendingCompanies() {
 
         // Attach events
         document.querySelectorAll('.verify-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const id = btn.dataset.id;
-                const currentStatus = btn.dataset.status === 'true';
-                const { error } = await supabase
-                    .from('companies')
-                    .update({ is_verified: !currentStatus })
-                    .eq('id', id);
+            btn.addEventListener('click', () => updateCompanyStatus(btn.dataset.id, true));
+        });
 
-                if (error) {
-                    alert('Error: ' + error.message);
-                } else {
-                    loadPendingCompanies();
-                    loadStats();
-                }
+        document.querySelectorAll('.moderate-company-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('moderation-id').value = btn.dataset.id;
+                document.getElementById('moderation-type').value = 'company';
+                document.getElementById('moderationModalLabel').innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i> Модериране на фирма';
+                document.getElementById('moderation-reason').value = '';
+                const modal = new bootstrap.Modal(document.getElementById('moderationModal'));
+                modal.show();
             });
         });
 
     } catch (err) {
         console.error('Error loading companies:', err);
+    }
+}
+
+async function updateCompanyStatus(id, isVerified, reason = null) {
+    const confirmMsg = isVerified ? 'Сигурни ли сте, че искате да верифицирате тази фирма?' : 'Сигурни ли сте, че искате да върнете регистрацията за корекция?';
+    if (!reason && !confirm(confirmMsg)) return;
+
+    try {
+        const updateData = {
+            is_verified: isVerified,
+            verified_at: isVerified ? new Date().toISOString() : null
+        };
+        if (reason) {
+            updateData.moderation_reason = reason;
+            updateData.status = 'rejected'; // Assuming companies have a status field too
+        } else {
+            updateData.status = 'approved';
+        }
+
+        const { error } = await supabase
+            .from('companies')
+            .update(updateData)
+            .eq('id', id);
+
+        if (error) throw error;
+        loadPendingCompanies();
+        loadStats();
+    } catch (err) {
+        alert('Грешка: ' + err.message);
     }
 }
 

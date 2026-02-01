@@ -241,6 +241,7 @@
     "description": "Description",
     "description_placeholder": "Describe the work in detail...",
     "budget": "Estimated Budget (Optional)",
+    "budget_negotiable": "Negotiable",
     "urgency": "Urgency",
     "submit": "Post the ad"
   },

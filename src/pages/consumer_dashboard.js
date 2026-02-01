@@ -163,16 +163,17 @@ function renderJobs(data) {
     jobsList.innerHTML = data.map(job => {
         const title = (currentLang === 'en' && job.title_en) ? job.title_en : job.title;
         const description = (currentLang === 'en' && job.description_en) ? job.description_en : job.description;
-        const categoryName = currentLang === 'bg' ? job.category.name_bg : job.category.name_en;
+        const categoryName = (job.category && currentLang === 'bg') ? job.category.name_bg : (job.category ? job.category.name_en : '');
         const city = job.city || job.location;
+        const isRejected = job.status === 'rejected';
 
         return `
             <div class="col-12 mb-4">
-                <div class="card shadow-sm border-0 job-card h-100 rounded-4 overflow-hidden">
+                <div class="card shadow-sm border-0 job-card h-100 rounded-4 overflow-hidden ${isRejected ? 'border-start border-danger border-4' : ''}">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <span class="badge ${getStatusBadgeClass(job.status)} px-3 py-2 rounded-pill uppercase small">
-                                ${job.status.toUpperCase()}
+                                ${t('ads.status_' + job.status)}
                             </span>
                             <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> ${new Date(job.created_at).toLocaleDateString(currentLang === 'bg' ? 'bg-BG' : 'en-US')}</small>
                         </div>
@@ -181,7 +182,22 @@ function renderJobs(data) {
                             <span><i class="bi bi-tag me-1"></i> ${categoryName}</span>
                             <span><i class="bi bi-geo-alt me-1"></i> ${city}</span>
                         </div>
-                        <p class="card-text text-dark opacity-75 text-truncate-3">${description}</p>
+
+                        ${isRejected ? `
+                            <div class="alert alert-danger border-0 rounded-3 mb-3 small d-flex">
+                                <i class="bi bi-exclamation-octagon-fill me-2 fs-5"></i>
+                                <div>
+                                    <div class="fw-bold">Обявата изисква корекция:</div>
+                                    <div>${job.moderation_reason || 'Не е посочена конкретна причина.'}</div>
+                                    <div class="mt-2 text-decoration-underline" style="cursor: pointer;" onclick="document.querySelector('.view-job-btn[data-id=\\'${job.id}\\']').click()">
+                                        Редактирайте и изпратете отново
+                                    </div>
+                                </div>
+                            </div>
+                        ` : `
+                            <p class="card-text text-dark opacity-75 text-truncate-3">${description}</p>
+                        `}
+
                         <div class="mt-4 border-top pt-3 d-flex justify-content-between align-items-center">
                             <span class="h5 mb-0 fw-bold text-primary">${job.budget_max ? job.budget_max + ' EUR' : t('common.negotiable')}</span>
                             <div class="d-flex gap-2">
@@ -287,6 +303,7 @@ function getStatusBadgeClass(status) {
         case 'pending': return 'bg-warning-subtle text-warning border border-warning-subtle';
         case 'draft': return 'bg-light text-dark border';
         case 'closed': return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
+        case 'rejected': return 'bg-danger-subtle text-danger border border-danger-subtle';
         default: return 'bg-light text-dark border';
     }
 }
@@ -334,13 +351,14 @@ function setupEventListeners(userId, isDemo = false) {
             const btn = jobForm.querySelector('button[type="submit"]');
             btn.disabled = true;
 
+            const isNegotiable = document.getElementById('job-budget-negotiable').checked;
             const jobData = {
                 consumer_id: userId,
                 title: document.getElementById('job-title').value,
                 category_id: document.getElementById('job-category').value,
                 description: document.getElementById('job-description').value,
                 city: document.getElementById('job-location').value,
-                budget_max: document.getElementById('job-budget').value || null,
+                budget_max: isNegotiable ? null : (document.getElementById('job-budget').value || null),
                 status: 'pending'
             };
 
@@ -429,13 +447,15 @@ function setupEventListeners(userId, isDemo = false) {
             btn.disabled = true;
 
             const jobId = document.getElementById('edit-job-id').value;
+            const isNegotiable = document.getElementById('edit-job-budget-negotiable').checked;
             const jobData = {
                 title: document.getElementById('edit-job-title').value,
                 category_id: document.getElementById('edit-job-category').value,
                 description: document.getElementById('edit-job-description').value,
                 city: document.getElementById('edit-job-location').value,
-                budget_max: document.getElementById('edit-job-budget').value || null,
+                budget_max: isNegotiable ? null : (document.getElementById('edit-job-budget').value || null),
                 status: 'pending', // Send back for approval
+                moderation_reason: null,
                 updated_at: new Date().toISOString()
             };
 
@@ -489,6 +509,20 @@ function setupEventListeners(userId, isDemo = false) {
                 if (job) await openOffersModal(job);
             }
         });
+        // Toggle budget input based on negotiable checkbox
+        const setupBudgetToggle = (checkboxId, inputId) => {
+            const checkbox = document.getElementById(checkboxId);
+            const input = document.getElementById(inputId);
+            if (checkbox && input) {
+                checkbox.addEventListener('change', () => {
+                    input.disabled = checkbox.checked;
+                    if (checkbox.checked) input.value = '';
+                });
+            }
+        };
+
+        setupBudgetToggle('job-budget-negotiable', 'job-budget');
+        setupBudgetToggle('edit-job-budget-negotiable', 'edit-job-budget');
     }
 
     // Delegation for Offer Action Buttons (Accept/Reject)
@@ -620,6 +654,12 @@ function openEditModal(job) {
     document.getElementById('edit-job-description').value = job.description;
     document.getElementById('edit-job-budget').value = job.budget_max || '';
 
+    const negotiableCheck = document.getElementById('edit-job-budget-negotiable');
+    if (negotiableCheck) {
+        negotiableCheck.checked = !job.budget_max;
+        document.getElementById('edit-job-budget').disabled = !job.budget_max;
+    }
+
     const modalEl = document.getElementById('editJobModal');
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
@@ -677,7 +717,7 @@ async function openOffersModal(job) {
                             </div>
                             <div class="ms-3">
                                 <button class="btn btn-sm btn-link text-danger p-1 delete-quote-btn" data-id="${quote.id}" title="Премахни от списъка">
-                                    <i class="bi bi-x-circle fs-5"></i>
+                                    <i class="bi bi-trash3 fs-5"></i>
                                 </button>
                             </div>
                         </div>

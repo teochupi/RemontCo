@@ -144,7 +144,7 @@ async function loadAvailableJobs() {
                             </div>
                             <div class="col-md-4 text-md-end mt-3 mt-md-0">
                                 <div class="mb-3">
-                                    <span class="fs-4 fw-bold text-primary">${job.budget_min ? job.budget_min + ' лв.' : t('common.negotiable')}</span>
+                                    <span class="fs-4 fw-bold text-primary">${(job.budget_max || job.budget_min) ? (job.budget_max || job.budget_min) + ' EUR' : t('common.negotiable')}</span>
                                 </div>
                                  <button class="btn btn-primary rounded-pill px-4 send-offer-btn" 
                                          data-id="${job.id}" 
@@ -268,18 +268,32 @@ async function loadFavorites() {
                 <div class="col-12">
                     <div class="card shadow-sm border-0 mb-3 rounded-4">
                         <div class="card-body p-4">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill small uppercase mb-2">
-                                        ${currentLang === 'bg' ? job.category?.name_bg : job.category?.name_en}
-                                    </span>
+                            <div class="row align-items-start">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill small uppercase">
+                                            ${currentLang === 'bg' ? job.category?.name_bg : job.category?.name_en}
+                                        </span>
+                                        <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> ${new Date(job.created_at).toLocaleDateString()}</small>
+                                    </div>
                                     <h5 class="fw-bold mb-2">${job.title}</h5>
                                     <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-1"></i> ${job.city || job.location}</p>
+                                    <p class="mt-3 text-secondary text-italic">${job.description}</p>
                                 </div>
-                                <div class="text-end">
-                                    <button class="btn btn-outline-danger btn-sm rounded-pill remove-favorite-btn" data-id="${job.id}">
-                                        <i class="bi bi-heart-fill me-1"></i> Премахни
-                                    </button>
+                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                    <div class="mb-3">
+                                        <span class="fs-4 fw-bold text-primary">${(job.budget_max || job.budget_min) ? (job.budget_max || job.budget_min) + ' EUR' : t('common.negotiable')}</span>
+                                    </div>
+                                    <div class="d-flex flex-column gap-2 align-items-md-end">
+                                        <button class="btn btn-primary rounded-pill px-4 send-offer-btn" 
+                                                data-id="${job.id}" 
+                                                data-title="${job.title}">
+                                            <i class="bi bi-send-fill me-1"></i> ${t('offers.send_offer')}
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm rounded-pill remove-favorite-btn w-auto" data-id="${job.id}">
+                                            <i class="bi bi-heart-fill me-1"></i> Премахни
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -378,9 +392,26 @@ function setupEventListeners() {
     if (favoritesList) {
         favoritesList.addEventListener('click', async (e) => {
             const removeBtn = e.target.closest('.remove-favorite-btn');
+            const sendOfferBtn = e.target.closest('.send-offer-btn');
+
             if (removeBtn) {
                 const jobId = removeBtn.dataset.id;
                 await toggleFavorite(jobId);
+            }
+
+            if (sendOfferBtn) {
+                const jobId = sendOfferBtn.dataset.id;
+                const jobTitle = sendOfferBtn.dataset.title;
+
+                document.getElementById('modal-job-id').value = jobId;
+                const titleEl = document.querySelector('#offerModal .modal-title');
+                if (titleEl) titleEl.textContent = `${t('offers.send_offer')}: ${jobTitle}`;
+
+                const modalEl = document.getElementById('offerModal');
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                }
             }
         });
     }

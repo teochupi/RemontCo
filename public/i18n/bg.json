@@ -241,6 +241,7 @@
     "description": "Описание",
     "description_placeholder": "Опишете работата подробно...",
     "budget": "Приблизителен бюджет (по избор)",
+    "budget_negotiable": "По договаряне",
     "urgency": "Спешност",
     "submit": "Публикувай обявата"
   },

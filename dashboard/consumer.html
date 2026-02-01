@@ -110,9 +110,15 @@
                     </div>
                     <div class="col-md-6">
                       <label class="form-label" data-i18n="job_form.budget">Приблизителен бюджет (по избор)</label>
-                      <div class="input-group">
+                      <div class="input-group mb-2">
                         <input type="number" class="form-control" id="job-budget">
                         <span class="input-group-text">EUR</span>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="job-budget-negotiable">
+                        <label class="form-check-label small" for="job-budget-negotiable" data-i18n="job_form.budget_negotiable">
+                          По договаряне
+                        </label>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -221,7 +227,16 @@
               </div>
               <div class="col-md-12">
                 <label class="form-label fw-bold" data-i18n="job_form.budget">Приблизителен бюджет (EUR)</label>
-                <input type="number" class="form-control" id="edit-job-budget">
+                <div class="input-group mb-2">
+                  <input type="number" class="form-control" id="edit-job-budget">
+                  <span class="input-group-text">EUR</span>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="edit-job-budget-negotiable">
+                  <label class="form-check-label small" for="edit-job-budget-negotiable" data-i18n="job_form.budget_negotiable">
+                    По договаряне
+                  </label>
+                </div>
               </div>
             </div>
             <div class="alert alert-warning mt-4 mb-0 border-0 shadow-sm rounded-3">
