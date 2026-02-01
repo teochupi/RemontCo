@@ -1,7 +1,5 @@
 # RemontCo - Trusted Construction Services Marketplace
 
-![RemontCo Logo](Logo_Chupetlov_2.png)
-
 ## 🏗️ About RemontCo
 
 **RemontCo** is a professional B2C marketplace platform that connects consumers with **verified, registered construction and property service companies**. Unlike typical marketplaces, RemontCo exclusively works with **legal entities (registered companies)** to ensure transparency, accountability, and consumer protection.
@@ -317,7 +315,6 @@ Each category supports unlimited subcategories via hierarchical structure.
 After setting up the database, create a demo admin user:
 
 **Admin**
-- Email: `teodor.chupetlov@abv.bg`
 - Username: `admin`
 - Password: `admin123`
 
