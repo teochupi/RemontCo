@@ -166,15 +166,31 @@ function renderJobs(data) {
         const categoryName = (job.category && currentLang === 'bg') ? job.category.name_bg : (job.category ? job.category.name_en : '');
         const city = job.city || job.location;
         const isRejected = job.status === 'rejected';
+        const now = new Date();
+        const expiryDate = new Date(job.expires_at || job.created_at);
+        const diffTime = expiryDate - now;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const isExpired = diffDays <= 0;
 
         return `
             <div class="col-12 mb-4">
                 <div class="card shadow-sm border-0 job-card h-100 rounded-4 overflow-hidden ${isRejected ? 'border-start border-danger border-4' : ''}">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-start mb-3">
-                            <span class="badge ${getStatusBadgeClass(job.status)} px-3 py-2 rounded-pill uppercase small">
-                                ${t('ads.status_' + job.status)}
-                            </span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge ${getStatusBadgeClass(job.status)} px-3 py-2 rounded-pill uppercase small">
+                                    ${t('ads.status_' + job.status)}
+                                </span>
+                                ${!isExpired ? `
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-2 rounded-pill small">
+                                        <i class="bi bi-clock-history me-1"></i> ${t('dashboard_consumer.expires_in')} ${diffDays} ${t('dashboard_consumer.days')}
+                                    </span>
+                                ` : `
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill small">
+                                        <i class="bi bi-exclamation-triangle me-1"></i> ${t('dashboard_consumer.expired')}
+                                    </span>
+                                `}
+                            </div>
                             <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> ${new Date(job.created_at).toLocaleDateString(currentLang === 'bg' ? 'bg-BG' : 'en-US')}</small>
                         </div>
                         <h5 class="card-title fw-bold text-dark mb-2">${title}</h5>
@@ -198,9 +214,15 @@ function renderJobs(data) {
                             <p class="card-text text-dark opacity-75 text-truncate-3">${description}</p>
                         `}
 
-                        <div class="mt-4 border-top pt-3 d-flex justify-content-between align-items-center">
+                        <div class="mt-4 border-top pt-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
                             <span class="h5 mb-0 fw-bold text-primary">${job.budget_max ? job.budget_max + ' EUR' : t('common.negotiable')}</span>
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button class="btn btn-sm btn-outline-info px-3 rounded-pill fw-bold extend-job-btn" data-id="${job.id}">
+                                    <i class="bi bi-arrow-clockwise me-1"></i> ${t('dashboard_consumer.extend')}
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger px-3 rounded-pill fw-bold delete-job-btn" data-id="${job.id}">
+                                    <i class="bi bi-trash me-1"></i> ${t('dashboard_consumer.delete')}
+                                </button>
                                 ${job.quotes_count > 0 ? `
                                     <button class="btn btn-sm btn-success px-4 rounded-pill fw-bold view-offers-btn" data-id="${job.id}">
                                         <i class="bi bi-chat-left-text me-1"></i> ${job.quotes_count} ${t('dashboard_consumer.offers')}
@@ -263,6 +285,7 @@ async function loadUserJobs(userId) {
             .from('jobs')
             .select(`
                 *,
+                expires_at,
                 category:service_categories(name_bg, name_en),
                 quotes:quotes(
                     id, 
@@ -305,6 +328,62 @@ function getStatusBadgeClass(status) {
         case 'closed': return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
         case 'rejected': return 'bg-danger-subtle text-danger border border-danger-subtle';
         default: return 'bg-light text-dark border';
+    }
+}
+
+/**
+ * Delete a job posting
+ * @param {string} jobId 
+ */
+async function deleteJob(jobId) {
+    if (!confirm(t('dashboard_consumer.delete_confirm'))) return;
+
+    try {
+        const { error } = await supabase
+            .from('jobs')
+            .delete()
+            .eq('id', jobId);
+
+        if (error) throw error;
+
+        alert(t('common.success'));
+        const { data: user } = await supabase.auth.getUser();
+        if (user.user) {
+            await loadUserJobs(user.user.id);
+        }
+    } catch (err) {
+        console.error('Error deleting job:', err);
+        alert(t('common.error') + ': ' + err.message);
+    }
+}
+
+/**
+ * Extend a job posting expiration by 90 days
+ * @param {string} jobId 
+ */
+async function extendJob(jobId) {
+    try {
+        const newExpiry = new Date();
+        newExpiry.setDate(newExpiry.getDate() + 90);
+
+        const { error } = await supabase
+            .from('jobs')
+            .update({
+                expires_at: newExpiry.toISOString(),
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', jobId);
+
+        if (error) throw error;
+
+        alert(t('common.success'));
+        const { data: user } = await supabase.auth.getUser();
+        if (user.user) {
+            await loadUserJobs(user.user.id);
+        }
+    } catch (err) {
+        console.error('Error extending job:', err);
+        alert(t('common.error') + ': ' + err.message);
     }
 }
 
@@ -507,6 +586,18 @@ function setupEventListeners(userId, isDemo = false) {
                 const jobId = viewOffersBtn.dataset.id;
                 const job = loadedJobs.find(j => j.id === jobId);
                 if (job) await openOffersModal(job);
+            }
+
+            const deleteJobBtn = e.target.closest('.delete-job-btn');
+            if (deleteJobBtn) {
+                const jobId = deleteJobBtn.dataset.id;
+                await deleteJob(jobId);
+            }
+
+            const extendJobBtn = e.target.closest('.extend-job-btn');
+            if (extendJobBtn) {
+                const jobId = extendJobBtn.dataset.id;
+                await extendJob(jobId);
             }
         });
         // Toggle budget input based on negotiable checkbox

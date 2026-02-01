@@ -41,6 +41,7 @@ async function loadRecentJobs() {
         category:service_categories(name_bg, name_en)
       `)
       .eq('status', 'approved')
+      .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
       .limit(3);
 

@@ -709,3 +709,141 @@ footer a {
 footer a:hover {
   color: var(--primary) !important;
 }
+
+/* =====================================================
+   CHOICES.JS PREMIUM STYLING
+   ===================================================== */
+.choices {
+  z-index: 2000 !important;
+  margin-bottom: 0;
+  transition: all 0.3s ease;
+}
+
+/* The box itself */
+.choices__inner {
+  background-color: #ffffff !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: var(--border-radius) !important;
+  padding: 0.5rem 0.75rem !important;
+  min-height: 48px !important;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.choices.is-focused .choices__inner {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px rgba(67, 56, 202, 0.1) !important;
+}
+
+.choices.is-open .choices__inner {
+  border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+}
+
+/* Dropdown list */
+.choices__list--dropdown {
+  z-index: 2001 !important;
+  background: #ffffff !important;
+  border: 2px solid var(--primary) !important;
+  border-top: none !important;
+  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg) !important;
+  box-shadow: var(--shadow-xl) !important;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.2s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Individual items */
+.choices__list--dropdown .choices__item {
+  padding: 0.75rem 1.25rem !important;
+  font-size: 0.95rem !important;
+  transition: all 0.2s ease !important;
+  border-left: 3px solid transparent;
+}
+
+.choices__list--dropdown .choices__item--selectable.is-highlighted {
+  background-color: rgba(67, 56, 202, 0.05) !important;
+  /* Very light primary */
+  color: var(--primary) !important;
+  border-left-color: var(--primary) !important;
+}
+
+/* Search input inside dropdown */
+.choices__input {
+  background-color: #f8fafc !important;
+  border-radius: var(--border-radius) !important;
+  padding: 0.6rem !important;
+  margin-bottom: 0.5rem !important;
+  border: 1px solid #e2e8f0 !important;
+  font-size: 0.9rem !important;
+}
+
+.choices__input:focus {
+  border-color: var(--primary-light) !important;
+}
+
+/* Placeholder fix */
+.choices__placeholder {
+  opacity: 0.7 !important;
+  color: var(--gray) !important;
+}
+
+/* Ensure the parent container doesn't clip the dropdown */
+section.py-4.bg-light {
+  position: relative;
+  z-index: 1020;
+}
+
+/* =====================================================
+   PORTFOLIO STYLES
+   ===================================================== */
+.portfolio-card .portfolio-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(67, 56, 202, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.portfolio-card:hover .portfolio-overlay {
+  opacity: 1;
+}
+
+.hover-scale {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lg) !important;
+}
+
+#imageViewerModal .modal-content {
+  background: rgba(0, 0, 0, 0.9) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+#imageViewerModal .modal-dialog {
+  margin: 1.5rem auto;
+  max-width: 95vw;
+}

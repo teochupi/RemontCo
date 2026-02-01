@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadAvailableJobs();
         loadMyOffers();
         loadFavorites();
+        loadPortfolio();
     }
 
     // 5. Setup Events
@@ -60,6 +61,7 @@ async function loadCompanyDetails(userId) {
         document.getElementById('profile-company-city').value = data.city || '';
         document.getElementById('profile-company-phone').value = data.phone || '';
         document.getElementById('profile-company-address').value = data.address || '';
+        document.getElementById('profile-company-website').value = data.website || '';
         document.getElementById('profile-company-description').value = data.description || '';
 
         const badge = document.getElementById('verification-badge');
@@ -101,6 +103,7 @@ async function loadAvailableJobs() {
                 category:service_categories(name_bg, name_en)
             `)
             .eq('status', 'approved')
+            .gt('expires_at', new Date().toISOString())
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -195,17 +198,28 @@ async function loadMyOffers() {
             return;
         }
 
-        list.innerHTML = data.map(offer => `
+        list.innerHTML = data.map(offer => {
+            const jobTitle = offer.job?.title || 'Архивирана / Изтрита обява';
+            const jobCity = offer.job?.city || '';
+            const isJobDeleted = !offer.job;
+
+            return `
             <div class="col-12">
                 <div class="card border-0 shadow-sm rounded-4 mb-3">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="fw-bold mb-0">${offer.job?.title}</h6>
+                            <div>
+                                <h6 class="fw-bold mb-0">${jobTitle}</h6>
+                                ${isJobDeleted ?
+                    '<span class="badge bg-secondary-subtle text-secondary small">Архив</span>' :
+                    `<small class="text-muted"><i class="bi bi-geo-alt me-1"></i> ${jobCity}</small>`
+                }
+                            </div>
                             <div class="d-flex align-items-center gap-2">
                                 <span class="badge ${offer.status === 'accepted' ? 'bg-success' : offer.status === 'rejected' ? 'bg-danger' : 'bg-primary'} px-3 py-2 rounded-pill">
                                     ${offer.status === 'pending' ? t('offers.status_pending') : offer.status === 'accepted' ? t('offers.status_accepted') : t('offers.status_rejected')}
                                 </span>
-                                <button class="btn btn-sm btn-outline-danger border-0 rounded-circle delete-offer-btn" data-id="${offer.id}" title="Изтрий оферта">
+                                <button class="btn btn-sm btn-outline-danger border-0 rounded-circle delete-offer-btn" data-id="${offer.id}" title="Изтрий от моя списък">
                                     <i class="bi bi-trash3"></i>
                                 </button>
                             </div>
@@ -225,8 +239,8 @@ async function loadMyOffers() {
                         </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            </div>`;
+        }).join('');
     } catch (err) {
         console.error('Error loading offers:', err);
     }
@@ -239,12 +253,12 @@ async function loadFavorites() {
         const { data, error } = await supabase
             .from('favorites')
             .select(`
-                *,
-                job:jobs(
+            *,
+            job: jobs(
                     *,
-                    category:service_categories(name_bg, name_en)
-                )
-            `)
+                category: service_categories(name_bg, name_en)
+            )
+                `)
             .eq('company_id', currentCompany.id)
             .order('created_at', { ascending: false });
 
@@ -265,39 +279,39 @@ async function loadFavorites() {
             if (!job) return ''; // Handled by ON DELETE CASCADE, but for safety
 
             return `
-                <div class="col-12">
-                    <div class="card shadow-sm border-0 mb-3 rounded-4">
-                        <div class="card-body p-4">
-                            <div class="row align-items-start">
-                                <div class="col-md-8">
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill small uppercase">
-                                            ${currentLang === 'bg' ? job.category?.name_bg : job.category?.name_en}
-                                        </span>
-                                        <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> ${new Date(job.created_at).toLocaleDateString()}</small>
-                                    </div>
-                                    <h5 class="fw-bold mb-2">${job.title}</h5>
-                                    <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-1"></i> ${job.city || job.location}</p>
-                                    <p class="mt-3 text-secondary text-italic">${job.description}</p>
+            <div class="col-12">
+                <div class="card shadow-sm border-0 mb-3 rounded-4">
+                    <div class="card-body p-4">
+                        <div class="row align-items-start">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill small uppercase">
+                                        ${currentLang === 'bg' ? job.category?.name_bg : job.category?.name_en}
+                                    </span>
+                                    <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> ${new Date(job.created_at).toLocaleDateString()}</small>
                                 </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <div class="mb-3">
-                                        <span class="fs-4 fw-bold text-primary">${(job.budget_max || job.budget_min) ? (job.budget_max || job.budget_min) + ' EUR' : t('common.negotiable')}</span>
-                                    </div>
-                                    <div class="d-flex flex-column gap-2 align-items-md-end">
-                                        <button class="btn btn-primary rounded-pill px-4 send-offer-btn" 
-                                                data-id="${job.id}" 
-                                                data-title="${job.title}">
-                                            <i class="bi bi-send-fill me-1"></i> ${t('offers.send_offer')}
-                                        </button>
-                                        <button class="btn btn-outline-danger btn-sm rounded-pill remove-favorite-btn w-auto" data-id="${job.id}">
-                                            <i class="bi bi-heart-fill me-1"></i> Премахни
-                                        </button>
-                                    </div>
+                                <h5 class="fw-bold mb-2">${job.title}</h5>
+                                <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-1"></i> ${job.city || job.location}</p>
+                                <p class="mt-3 text-secondary text-italic">${job.description}</p>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                <div class="mb-3">
+                                    <span class="fs-4 fw-bold text-primary">${(job.budget_max || job.budget_min) ? (job.budget_max || job.budget_min) + ' EUR' : t('common.negotiable')}</span>
+                                </div>
+                                <div class="d-flex flex-column gap-2 align-items-md-end">
+                                    <button class="btn btn-primary rounded-pill px-4 send-offer-btn"
+                                        data-id="${job.id}"
+                                        data-title="${job.title}">
+                                        <i class="bi bi-send-fill me-1"></i> ${t('offers.send_offer')}
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill remove-favorite-btn w-auto" data-id="${job.id}">
+                                        <i class="bi bi-heart-fill me-1"></i> Премахни
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
                 </div>
             `;
         }).join('');
@@ -351,7 +365,7 @@ function setupEventListeners() {
 
                 const titleEl = document.querySelector('#offerModal .modal-title');
                 if (titleEl) {
-                    titleEl.textContent = `${t('offers.send_offer')}: ${jobTitle}`;
+                    titleEl.textContent = `${t('offers.send_offer')}: ${jobTitle} `;
                 }
 
                 const modalEl = document.getElementById('offerModal');
@@ -380,7 +394,7 @@ function setupEventListeners() {
             const jobTitle = btn.dataset.title;
             document.getElementById('modal-job-id').value = jobId;
             const titleEl = document.querySelector('#offerModal .modal-title');
-            if (titleEl) titleEl.textContent = `${t('offers.send_offer')}: ${jobTitle}`;
+            if (titleEl) titleEl.textContent = `${t('offers.send_offer')}: ${jobTitle} `;
             const modalEl = document.getElementById('offerModal');
             translateElement(modalEl);
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
@@ -405,7 +419,7 @@ function setupEventListeners() {
 
                 document.getElementById('modal-job-id').value = jobId;
                 const titleEl = document.querySelector('#offerModal .modal-title');
-                if (titleEl) titleEl.textContent = `${t('offers.send_offer')}: ${jobTitle}`;
+                if (titleEl) titleEl.textContent = `${t('offers.send_offer')}: ${jobTitle} `;
 
                 const modalEl = document.getElementById('offerModal');
                 if (modalEl) {
@@ -423,7 +437,8 @@ function setupEventListeners() {
             const deleteBtn = e.target.closest('.delete-offer-btn');
             if (deleteBtn) {
                 const offerId = deleteBtn.dataset.id;
-                if (confirm('Сигурни ли сте, че искате да изтриете тази оферта?')) {
+
+                if (confirm('Сигурни ли сте, че искате да премахнете тази оферта от вашето табло?')) {
                     try {
                         const { error } = await supabase
                             .from('quotes')
@@ -433,7 +448,7 @@ function setupEventListeners() {
                         if (error) throw error;
                         loadMyOffers();
                     } catch (err) {
-                        alert('Грешка при изтриване: ' + err.message);
+                        alert('Грешка: ' + err.message);
                     }
                 }
             }
@@ -466,6 +481,7 @@ function setupEventListeners() {
                     company_id: currentCompany.id,
                     offered_by: currentUser.id,
                     price: parseFloat(document.getElementById('offer-price').value),
+                    price_unit: document.getElementById('offer-unit').value,
                     message: document.getElementById('offer-message').value,
                     timeline_days: parseInt(document.getElementById('offer-duration').value) || null,
                     status: 'pending'
@@ -488,8 +504,8 @@ function setupEventListeners() {
                 if (fileInput.files.length > 0) {
                     const file = fileInput.files[0];
                     const fileExt = file.name.split('.').pop();
-                    const fileName = `${Date.now()}-${jobId}-${currentCompany.id}.${fileExt}`;
-                    const filePath = `offers/${fileName}`;
+                    const fileName = `${Date.now()} -${jobId} -${currentCompany.id}.${fileExt} `;
+                    const filePath = `offers / ${fileName} `;
 
                     console.log('Uploading file:', filePath);
 
@@ -555,6 +571,7 @@ function setupEventListeners() {
                 city: document.getElementById('profile-company-city').value,
                 phone: document.getElementById('profile-company-phone').value,
                 address: document.getElementById('profile-company-address').value,
+                website: document.getElementById('profile-company-website').value,
                 description: document.getElementById('profile-company-description').value,
                 updated_at: new Date().toISOString()
             };
@@ -585,12 +602,141 @@ function setupEventListeners() {
             history.replaceState(null, null, hash);
         });
     });
+
+    // Portfolio Form
+    const portfolioForm = document.getElementById('portfolio-form');
+    if (portfolioForm) {
+        portfolioForm.addEventListener('submit', handlePortfolioSubmit);
+    }
 }
 
 function handleHashNavigation() {
     const hash = window.location.hash;
     if (!hash) return;
-    const tabId = `v-pills-${hash.substring(1)}-tab`;
+    const tabId = `v - pills - ${hash.substring(1)} -tab`;
     const tabBtn = document.getElementById(tabId);
     if (tabBtn) tabBtn.click();
+}
+
+async function loadPortfolio() {
+    const list = document.getElementById('company-portfolio-list');
+    if (!currentCompany) return;
+
+    try {
+        const { data, error } = await supabase
+            .from('company_portfolio')
+            .select('*')
+            .eq('company_id', currentCompany.id)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (data.length === 0) {
+            list.innerHTML = `
+            <div class="col-12 text-center py-5">
+                    <div class="mb-3 text-muted opacity-25">
+                        <i class="bi bi-images fs-1"></i>
+                    </div>
+                    <p class="text-muted">Все още нямате добавени проекти в портфолиото.</p>
+                </div>`;
+            return;
+        }
+
+        list.innerHTML = data.map(item => `
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <img src="${item.image_url}" class="card-img-top" alt="${item.title}" style="height: 200px; object-fit: cover;">
+                        <div class="card-body p-3">
+                            <h6 class="fw-bold mb-1">${item.title}</h6>
+                            <p class="text-muted small mb-3">${item.description || ''}</p>
+                            <button class="btn btn-outline-danger btn-sm rounded-pill w-100 delete-portfolio-btn" data-id="${item.id}">
+                                <i class="bi bi-trash3 me-1"></i> Изтрий
+                            </button>
+                    </div>
+                </div>
+            </div>
+            `).join('');
+
+        // Attach delete events
+        document.querySelectorAll('.delete-portfolio-btn').forEach(btn => {
+            btn.addEventListener('click', () => deletePortfolioItem(btn.dataset.id));
+        });
+
+    } catch (err) {
+        console.error('Error loading portfolio:', err);
+    }
+}
+
+async function handlePortfolioSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+
+    try {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Качване...';
+
+        const title = document.getElementById('portfolio-title').value;
+        const description = document.getElementById('portfolio-description').value;
+        const imageFile = document.getElementById('portfolio-image').files[0];
+
+        if (!imageFile) throw new Error('Моля, изберете снимка.');
+
+        // 1. Upload image to Storage
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${currentCompany.id}/${Date.now()}.${fileExt}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('portfolio-images')
+            .upload(fileName, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        // 2. Get Public URL
+        const { data: { publicUrl } } = supabase.storage
+            .from('portfolio-images')
+            .getPublicUrl(fileName);
+
+        // 3. Insert into Database
+        const { error: dbError } = await supabase
+            .from('company_portfolio')
+            .insert({
+                company_id: currentCompany.id,
+                title,
+                description,
+                image_url: publicUrl
+            });
+
+        if (dbError) throw dbError;
+
+        // Success
+        bootstrap.Modal.getInstance(document.getElementById('portfolioModal')).hide();
+        e.target.reset();
+        await loadPortfolio();
+        alert('Проектът беше добавен успешно!');
+
+    } catch (err) {
+        console.error('Error adding portfolio project:', err);
+        alert('Грешка при добавяне: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+async function deletePortfolioItem(id) {
+    if (!confirm('Сигурни ли сте, че искате да изтриете този проект от портфолиото си?')) return;
+
+    try {
+        const { error } = await supabase
+            .from('company_portfolio')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        await loadPortfolio();
+    } catch (err) {
+        console.error('Error deleting portfolio item:', err);
+        alert('Грешка при изтриване.');
+    }
 }

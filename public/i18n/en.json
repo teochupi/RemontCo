@@ -220,7 +220,13 @@
     "offers": "Offers",
     "post_title": "Describe Your Project",
     "profile_settings": "Security & Identity",
-    "no_jobs": "You haven't posted any ads yet."
+    "no_jobs": "You haven't posted any ads yet.",
+    "expires_in": "Expires in",
+    "days": "days",
+    "extend": "Extend period",
+    "delete": "Delete",
+    "delete_confirm": "Are you sure you want to delete this posting? This will also remove all received offers.",
+    "expired": "Expired"
   },
   "dashboard_company": {
     "title": "Company Dashboard",
@@ -264,7 +270,18 @@
     "all_cities": "All Cities",
     "edit_profile": "Edit Profile",
     "sent_offers": "Sent Offers",
-    "find_work": "Find Work"
+    "find_work": "Find Work",
+    "about_title": "About company",
+    "services_title": "Services",
+    "no_services": "No services listed.",
+    "portfolio_title": "Portfolio",
+    "no_portfolio": "No portfolio items added yet.",
+    "contact_info": "Contact Information",
+    "hire_button": "Hire for project",
+    "register_cta": "Register as a consumer to send job requests.",
+    "under_verification": "Under Verification",
+    "verified_partner": "Verified Partner",
+    "not_available": "Not available"
   },
   "offers": {
     "send_offer": "Send Offer",
@@ -276,7 +293,14 @@
     "status_pending": "Sent",
     "status_accepted": "Accepted",
     "status_rejected": "Rejected",
-    "price_label": "Offered Price (BGN)",
+    "price_label": "Offered Price (EUR)",
+    "unit_label": "Unit",
+    "unit_total": "Total",
+    "unit_m2": "sq.m.",
+    "unit_lm": "lin.m.",
+    "unit_kg": "kg.",
+    "unit_ton": "ton",
+    "unit_hour": "hour",
     "message_label": "Message to Client",
     "message_placeholder": "Describe how you will help...",
     "timeline_label": "Completion Time (days)",
@@ -304,7 +328,9 @@
     "status_approved": "Approved",
     "status_rejected": "Rejected",
     "status_closed": "Closed",
-    "edit_approval_warning": "After making changes, the ad will be sent back for admin approval."
+    "edit_approval_warning": "After making changes, the ad will be sent back for admin approval.",
+    "verified_badge": "Verified",
+    "pending_badge": "Pending Approval"
   },
   "common": {
     "save": "Save Changes",

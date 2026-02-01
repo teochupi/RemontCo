@@ -46,6 +46,10 @@
                 <i class="bi bi-tools me-2"></i> <span data-i18n="dashboard_company.active_projects">Активни
                   Проекти</span>
               </button>
+              <button class="nav-link text-start" id="v-pills-portfolio-tab" data-bs-toggle="pill"
+                data-bs-target="#v-pills-portfolio" type="button" role="tab">
+                <i class="bi bi-images me-2"></i> <span data-i18n="company.portfolio_title">Портфолио</span>
+              </button>
               <button class="nav-link text-start" id="v-pills-profile-tab" data-bs-toggle="pill"
                 data-bs-target="#v-pills-profile" type="button" role="tab">
                 <i class="bi bi-person-lines-fill me-2"></i> <span data-i18n="dashboard_company.profile">Редактиране на
@@ -90,6 +94,22 @@
             </div>
           </div>
 
+          <!-- Portfolio Tab -->
+          <div class="tab-pane fade" id="v-pills-portfolio" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="h4 mb-0" data-i18n="company.portfolio_title">Портфолио</h2>
+              <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#portfolioModal">
+                <i class="bi bi-plus-lg me-2"></i> Добави проект
+              </button>
+            </div>
+            <div id="company-portfolio-list" class="row g-4">
+              <!-- Portfolio items injected here -->
+              <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+              </div>
+            </div>
+          </div>
+
           <!-- Settings Tab -->
           <div class="tab-pane fade" id="v-pills-profile" role="tabpanel">
             <h2 class="h4 mb-4">Настройки на профила</h2>
@@ -119,6 +139,11 @@
                       <input type="text" class="form-control" id="profile-company-address" required>
                     </div>
                     <div class="col-12">
+                      <label class="form-label fw-bold">Уебсайт</label>
+                      <input type="text" class="form-control" id="profile-company-website"
+                        placeholder="www.example.com">
+                    </div>
+                    <div class="col-12">
                       <label class="form-label fw-bold">Описание на дейността</label>
                       <textarea class="form-control" id="profile-company-description" rows="4"></textarea>
                     </div>
@@ -146,6 +171,41 @@
     </div>
   </div>
 
+  <!-- Portfolio Project Modal -->
+  <div class="modal fade" id="portfolioModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content border-0 shadow-lg rounded-4">
+        <form id="portfolio-form">
+          <div class="modal-header bg-primary text-white p-4">
+            <h5 class="modal-title fw-bold">Добави проект в портфолио</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Заглавие на проекта</label>
+              <input type="text" class="form-control" id="portfolio-title" placeholder="напр. Ремонт на баня - Младост"
+                required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Описание</label>
+              <textarea class="form-control" id="portfolio-description" rows="3"
+                placeholder="Кратко описание на извършената работа..."></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Снимка на проекта</label>
+              <input type="file" class="form-control" id="portfolio-image" accept="image/*" required>
+              <div class="form-text">Качете снимка (JPG, PNG). Макс. 5MB.</div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 p-4">
+            <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Отказ</button>
+            <button type="submit" class="btn btn-primary px-4 bg-gradient-primary">Добави Проект</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Offer Modal -->
   <div class="modal fade" id="offerModal" tabindex="-1">
     <div class="modal-dialog">
@@ -157,9 +217,22 @@
           </div>
           <div class="modal-body p-4">
             <input type="hidden" id="modal-job-id">
-            <div class="mb-3">
-              <label class="form-label fw-bold" data-i18n="offers.price_label">Предложена Цена (лв.)</label>
-              <input type="number" class="form-control" id="offer-price" required>
+            <div class="row g-2 mb-3">
+              <div class="col-8">
+                <label class="form-label fw-bold" data-i18n="offers.price_label">Предложена Цена (EUR)</label>
+                <input type="number" class="form-control" id="offer-price" required>
+              </div>
+              <div class="col-4">
+                <label class="form-label fw-bold" data-i18n="offers.unit_label">Мярка</label>
+                <select class="form-select" id="offer-unit">
+                  <option value="total" data-i18n="offers.unit_total">Общо</option>
+                  <option value="m2" data-i18n="offers.unit_m2">кв.м.</option>
+                  <option value="lm" data-i18n="offers.unit_lm">лин.м.</option>
+                  <option value="kg" data-i18n="offers.unit_kg">кг.</option>
+                  <option value="ton" data-i18n="offers.unit_ton">тон</option>
+                  <option value="hour" data-i18n="offers.unit_hour">час</option>
+                </select>
+              </div>
             </div>
             <div class="mb-3">
               <label class="form-label fw-bold" data-i18n="offers.message_label">Съобщение до клиента</label>
