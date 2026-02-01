@@ -26,11 +26,16 @@ export function renderFooter(container) {
           <p class="text-white">
             ${t('footer.about_text')}
           </p>
-          <div class="mt-3">
+          <div class="mt-3 d-flex gap-3">
             <a href="https://www.linkedin.com/in/teodor-chupetlov" target="_blank" 
                class="d-inline-flex align-items-center justify-content-center text-white hover-primary fs-4" 
                style="text-decoration: none;">
               <i class="bi bi-linkedin"></i>
+            </a>
+            <a href="https://github.com/teochupi" target="_blank" 
+               class="d-inline-flex align-items-center justify-content-center text-white hover-primary fs-4" 
+               style="text-decoration: none;">
+              <i class="bi bi-github"></i>
             </a>
           </div>
         </div>
