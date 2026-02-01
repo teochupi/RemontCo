@@ -112,6 +112,22 @@ SELECT COUNT(*) as category_count FROM service_categories;
 SELECT id, email, role FROM profiles WHERE role = 'admin';
 ```
 
+### 8. Edge Functions & Webhooks
+
+The platform uses **Supabase Edge Functions** to handle automated email notifications.
+
+1. **Deploy Edge Function**:
+   - Install Supabase CLI
+   - Deploy the `notify-on-event` function
+2. **Enable Webhooks**:
+   The database is configured with triggers that call the Edge Function for specific events:
+   - `on_message_inserted`: Triggers on new entries in `messages`.
+   - `on_job_changed`: Triggers when a job is created or its status changes.
+   - `on_company_changed`: Triggers on new company registrations.
+   - `on_quote_inserted`: Triggers when a company sends a new offer.
+
+All emails are sent via the **Brevo API** for maximum reliability and full support for Bulgarian text.
+
 ## Database Structure
 
 ### Core Tables

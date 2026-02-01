@@ -47,6 +47,9 @@ This creates a fair, legal, and professional marketplace that benefits:
   - Authentication (email/password)
   - Row Level Security (RLS)
   - Storage (for images/documents)
+  - **Edge Functions** - Serverless TypeScript functions for logic
+  - **Database Webhooks** - Real-time triggers for events
+- **Brevo API** - Professional transactional email delivery
 
 ### Internationalization
 - Custom i18n system supporting **Bulgarian** and **English**
@@ -87,6 +90,19 @@ This creates a fair, legal, and professional marketplace that benefits:
 - ✅ Row Level Security (RLS) on all database tables
 - ✅ Client-side route guards
 - ✅ Company verification workflow
+
+### 🔔 Automated Notifications
+The platform includes a robust notification system powered by **Supabase Edge Functions** and **Brevo API**:
+- 📧 **For Consumers**:
+  - Instant email alerts for new messages.
+  - Notifications when a new quote/offer is received.
+  - Alerts if an ad/job needs modification (rejection reasons).
+- 📧 **For Companies**:
+  - Notifications for new messages from clients.
+- 📧 **For Administrators**:
+  - Alerts for new job postings requiring approval.
+  - Notifications for new company registrations awaiting verification.
+- 🌍 **Internationalization**: All emails are professionally designed and support **Bulgarian (Cyrillic)** without encoding issues.
 
 ---
 
