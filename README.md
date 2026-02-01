@@ -310,15 +310,14 @@ Each category supports unlimited subcategories via hierarchical structure.
 
 ---
 
-## 🧪 Demo Credentials
+## 🧪 Demo Mode
 
-After setting up the database, create a demo admin user:
+The platform includes a built-in **Demo Mode** for immediate exploration without the need for manual registration. You can access it directly from the navigation bar:
 
-**Admin**
-- Username: `admin`
-- Password: `admin123`
+- **Customer Demo**: Explore the platform as a property owner. View, post (simulated), and manage job requests and see how you receive offers from companies.
+- **Company Demo**: Explore the dashboard as a service provider. Browse available jobs, view project details, and see the process of sending quotes.
 
-Create test accounts via registration pages for other roles.
+*Note: Demo accounts operate in a restricted mode to maintain data integrity for all users.*
 
 ---
 
