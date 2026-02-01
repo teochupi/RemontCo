@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 3. Load Data
         loadPendingJobs();
         loadPendingCompanies();
+        loadAllUsers();
         loadStats();
 
         // 4. Reveal page
@@ -245,6 +246,66 @@ async function loadPendingCompanies() {
 
     } catch (err) {
         console.error('Error loading companies:', err);
+    }
+}
+
+async function loadAllUsers() {
+    const tableBody = document.getElementById('all-users-table');
+    if (!tableBody) return;
+
+    try {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        renderUserList(data);
+    } catch (err) {
+        console.error('Error loading users:', err);
+        tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-danger">${err.message}</td></tr>`;
+    }
+}
+
+function renderUserList(data) {
+    const tableBody = document.getElementById('all-users-table');
+    if (!tableBody) return;
+
+    if (!data || data.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-muted">${t('admin.no_users_found')}</td></tr>`;
+        return;
+    }
+
+    tableBody.innerHTML = data.map(user => `
+        <tr class="align-middle">
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="avatar-circle bg-primary-subtle text-primary me-3 d-flex align-items-center justify-content-center fw-bold" style="width: 35px; height: 35px; border-radius: 50%;">
+                        ${(user.username || 'U')[0].toUpperCase()}
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">${user.username || 'N/A'}</div>
+                        <small class="text-muted">${user.first_name || ''} ${user.last_name || ''}</small>
+                    </div>
+                </div>
+            </td>
+            <td>${user.email}</td>
+            <td>
+                <span class="badge ${getRoleBadgeClass(user.role)} px-3 py-2 rounded-pill">
+                    ${t('admin.roles.' + user.role)}
+                </span>
+            </td>
+            <td><small class="text-muted">${new Date(user.created_at).toLocaleDateString()}</small></td>
+        </tr>
+    `).join('');
+}
+
+function getRoleBadgeClass(role) {
+    switch (role) {
+        case 'admin': return 'bg-danger-subtle text-danger border border-danger-subtle';
+        case 'company_admin': return 'bg-primary-subtle text-primary border border-primary-subtle';
+        case 'demo': return 'bg-info-subtle text-info border border-info-subtle';
+        default: return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
     }
 }
 

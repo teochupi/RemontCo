@@ -90,14 +90,39 @@ async function loadRandomJobs() {
         const { data: user } = await supabase.auth.getUser();
         if (!user.user) return;
 
+        // Fetch jobs with categories and quotes
         const { data, error } = await supabase
             .from('jobs')
-            .select('*, category:service_categories(name_bg, name_en)')
+            .select(`
+                *,
+                category:service_categories(name_bg, name_en),
+                quotes:quotes(
+                    id, 
+                    price, 
+                    message, 
+                    status, 
+                    created_at,
+                    is_hidden_by_consumer,
+                    company:companies(name, city, is_verified)
+                )
+            `)
             .eq('consumer_id', user.user.id)
-            .limit(5);
+            .order('created_at', { ascending: false })
+            .limit(10);
 
         if (error) throw error;
-        renderJobs(data);
+
+        // Enrich and filter data
+        loadedJobs = data.map(job => {
+            const visibleQuotes = (job.quotes || []).filter(q => !q.is_hidden_by_consumer && q.status !== 'rejected');
+            return {
+                ...job,
+                quotes: visibleQuotes,
+                quotes_count: visibleQuotes.length
+            };
+        });
+
+        renderJobs(loadedJobs, true);
     } catch (err) {
         console.error('Demo jobs error:', err);
     }
@@ -145,7 +170,7 @@ async function loadRandomCompanies() {
     }
 }
 
-function renderJobs(data) {
+function renderJobs(data, isDemo = false) {
     const jobsList = document.getElementById('jobs-list');
     if (!jobsList) return;
 
@@ -217,10 +242,10 @@ function renderJobs(data) {
                         <div class="mt-4 border-top pt-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
                             <span class="h5 mb-0 fw-bold text-primary">${job.budget_max ? job.budget_max + ' EUR' : t('common.negotiable')}</span>
                             <div class="d-flex gap-2 flex-wrap">
-                                <button class="btn btn-sm btn-outline-info px-3 rounded-pill fw-bold extend-job-btn" data-id="${job.id}">
+                                <button class="btn btn-sm btn-outline-info px-3 rounded-pill fw-bold extend-job-btn ${isDemo ? 'opacity-50' : ''}" data-id="${job.id}" ${isDemo ? 'title="' + t('demo.demo_alert') + '"' : ''}>
                                     <i class="bi bi-arrow-clockwise me-1"></i> ${t('dashboard_consumer.extend')}
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger px-3 rounded-pill fw-bold delete-job-btn" data-id="${job.id}">
+                                <button class="btn btn-sm btn-outline-danger px-3 rounded-pill fw-bold delete-job-btn ${isDemo ? 'opacity-50' : ''}" data-id="${job.id}" ${isDemo ? 'title="' + t('demo.demo_alert') + '"' : ''}>
                                     <i class="bi bi-trash me-1"></i> ${t('dashboard_consumer.delete')}
                                 </button>
                                 ${job.quotes_count > 0 ? `
@@ -228,7 +253,7 @@ function renderJobs(data) {
                                         <i class="bi bi-chat-left-text me-1"></i> ${job.quotes_count} ${t('dashboard_consumer.offers')}
                                     </button>
                                 ` : ''}
-                                <button class="btn btn-sm btn-outline-primary px-4 rounded-pill fw-bold view-job-btn" data-id="${job.id}">
+                                <button class="btn btn-sm btn-outline-primary px-4 rounded-pill fw-bold view-job-btn ${isDemo ? 'opacity-75' : ''}" data-id="${job.id}" ${isDemo ? 'title="' + t('demo.demo_alert') + '"' : ''}>
                                     <i class="bi bi-pencil me-1"></i> ${t('common.edit')}
                                 </button>
                             </div>
@@ -312,7 +337,7 @@ async function loadUserJobs(userId) {
             };
         });
 
-        renderJobs(loadedJobs);
+        renderJobs(loadedJobs, false); // false for isDemo
 
     } catch (err) {
         console.error('Error loading jobs:', err);
@@ -590,12 +615,20 @@ function setupEventListeners(userId, isDemo = false) {
 
             const deleteJobBtn = e.target.closest('.delete-job-btn');
             if (deleteJobBtn) {
+                if (isDemo) {
+                    alert(t('demo.demo_alert'));
+                    return;
+                }
                 const jobId = deleteJobBtn.dataset.id;
                 await deleteJob(jobId);
             }
 
             const extendJobBtn = e.target.closest('.extend-job-btn');
             if (extendJobBtn) {
+                if (isDemo) {
+                    alert(t('demo.demo_alert'));
+                    return;
+                }
                 const jobId = extendJobBtn.dataset.id;
                 await extendJob(jobId);
             }

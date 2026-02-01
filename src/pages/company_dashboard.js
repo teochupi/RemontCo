@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // 5. Setup Events
-    setupEventListeners();
+    const isDemo = user.email === 'company-demo@remont.co';
+    setupEventListeners(isDemo);
 
     // 6. Handle hash navigation
     handleHashNavigation();
@@ -350,7 +351,7 @@ async function toggleFavorite(jobId) {
     }
 }
 
-function setupEventListeners() {
+function setupEventListeners(isDemo = false) {
     // Delegation for Job Offer Buttons
     const jobsList = document.getElementById('available-jobs-list');
     if (jobsList) {
@@ -436,6 +437,10 @@ function setupEventListeners() {
         offersList.addEventListener('click', async (e) => {
             const deleteBtn = e.target.closest('.delete-offer-btn');
             if (deleteBtn) {
+                if (isDemo) {
+                    alert(t('demo.demo_alert'));
+                    return;
+                }
                 const offerId = deleteBtn.dataset.id;
 
                 if (confirm('Сигурни ли сте, че искате да премахнете тази оферта от вашето табло?')) {
@@ -459,6 +464,11 @@ function setupEventListeners() {
     if (offerForm) {
         offerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            if (isDemo) {
+                alert(t('demo.demo_alert'));
+                return;
+            }
 
             const submitBtn = offerForm.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
@@ -577,6 +587,10 @@ function setupEventListeners() {
             };
 
             try {
+                if (isDemo) {
+                    alert(t('demo.demo_alert'));
+                    return;
+                }
                 const { error } = await supabase
                     .from('companies')
                     .update(updateData)
@@ -606,7 +620,14 @@ function setupEventListeners() {
     // Portfolio Form
     const portfolioForm = document.getElementById('portfolio-form');
     if (portfolioForm) {
-        portfolioForm.addEventListener('submit', handlePortfolioSubmit);
+        portfolioForm.addEventListener('submit', (e) => {
+            if (isDemo) {
+                e.preventDefault();
+                alert(t('demo.demo_alert'));
+                return;
+            }
+            handlePortfolioSubmit(e);
+        });
     }
 }
 
@@ -659,7 +680,14 @@ async function loadPortfolio() {
 
         // Attach delete events
         document.querySelectorAll('.delete-portfolio-btn').forEach(btn => {
-            btn.addEventListener('click', () => deletePortfolioItem(btn.dataset.id));
+            btn.addEventListener('click', () => {
+                const isDemo = currentUser.email === 'company-demo@remont.co';
+                if (isDemo) {
+                    alert(t('demo.demo_alert'));
+                    return;
+                }
+                deletePortfolioItem(btn.dataset.id);
+            });
         });
 
     } catch (err) {

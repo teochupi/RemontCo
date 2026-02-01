@@ -4,7 +4,7 @@
  */
 
 import { isAuthenticated, hasRole } from '../utils/guards.js';
-import { getCurrentUser, signOut } from '../services/supabase.js';
+import { supabase, getCurrentUser, signOut } from '../services/supabase.js';
 import { t, switchLanguage, getCurrentLanguage } from '../utils/i18n.js';
 
 /**
@@ -52,7 +52,13 @@ export async function renderNavbar(container) {
           ${!authenticated ? `
             <!-- Not Authenticated -->
             <li class="nav-item">
-              <a class="nav-link text-white fw-bold" href="/auth/login.html" data-i18n="nav.login">${t('nav.login')}</a>
+              <a class="nav-link text-white fw-bold d-flex align-items-center gap-1" href="#" id="demoBtn">
+                <i class="bi bi-magic"></i>
+                <span data-i18n="nav.demo">${t('nav.demo')}</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white fw-bold mx-2" href="/auth/login.html" data-i18n="nav.login">${t('nav.login')}</a>
             </li>
             <li class="nav-item">
               <a class="nav-link text-white fw-bold" href="/auth/register.html" data-i18n="nav.register">${t('nav.register')}</a>
@@ -81,6 +87,11 @@ export async function renderNavbar(container) {
 
   // Add event listeners
   setupNavbarListeners(navbar);
+
+  // Render Modal if not already present
+  if (!document.getElementById('demoModal')) {
+    renderDemoModal();
+  }
 }
 
 /**
@@ -126,4 +137,108 @@ function setupNavbarListeners(navbar) {
       }
     });
   }
+
+  // Demo button click
+  const demoBtn = navbar.querySelector('#demoBtn');
+  if (demoBtn) {
+    demoBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const modal = new bootstrap.Modal(document.getElementById('demoModal'));
+      modal.show();
+    });
+  }
+}
+
+/**
+ * Render Demo Role Selection Modal
+ */
+function renderDemoModal() {
+  const modalHtml = `
+    <div class="modal fade" id="demoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-header bg-dark text-white border-0 p-4">
+          <div>
+            <h5 class="modal-title fw-bold fs-4 mb-1">${t('demo.modal_title')}</h5>
+            <p class="text-white-50 mb-0 small">${t('demo.modal_subtitle')}</p>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4 bg-light">
+          <div class="row g-3">
+            <!-- Consumer Demo -->
+            <div class="col-12">
+              <button class="btn btn-white border shadow-sm w-100 p-4 text-start rounded-4 demo-select-btn" data-type="consumer">
+                <div class="d-flex align-items-center gap-4">
+                  <div class="flex-shrink-0 bg-primary-subtle text-primary rounded-3 p-3">
+                    <i class="bi bi-person-circle fs-2"></i>
+                  </div>
+                  <div>
+                    <h6 class="fw-bold text-dark mb-1">${t('demo.as_consumer')}</h6>
+                    <p class="text-muted small mb-0">${t('demo.as_consumer_desc')}</p>
+                  </div>
+                  <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                </div>
+              </button>
+            </div>
+
+            <!-- Company Demo -->
+            <div class="col-12">
+              <button class="btn btn-white border shadow-sm w-100 p-4 text-start rounded-4 demo-select-btn" data-type="company">
+                <div class="d-flex align-items-center gap-4">
+                  <div class="flex-shrink-0 bg-success-subtle text-success rounded-3 p-3">
+                    <i class="bi bi-building fs-2"></i>
+                  </div>
+                  <div>
+                    <h6 class="fw-bold text-dark mb-1">${t('demo.as_company')}</h6>
+                    <p class="text-muted small mb-0">${t('demo.as_company_desc')}</p>
+                  </div>
+                  <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light border-0 px-4 pb-4">
+          <p class="text-muted small mb-0 w-100 text-center">
+            <i class="bi bi-info-circle me-1"></i> ${t('demo.notice').replace(/<\/?[^>]+(>|$)/g, "")}
+          </p>
+        </div>
+      </div>
+    </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+  // Add click listeners to demo buttons
+  document.querySelectorAll('.demo-select-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const type = btn.dataset.type;
+      const email = type === 'consumer' ? 'demo@remont.co' : 'company-demo@remont.co';
+      const password = 'Remont2026!';
+
+      try {
+        btn.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div>';
+        btn.disabled = true;
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) throw error;
+
+        // Redirect based on role
+        const redirectTo = type === 'consumer' ? '/dashboard/consumer.html' : '/dashboard/company.html';
+        window.location.href = redirectTo;
+      } catch (err) {
+        console.error('Demo login error:', err);
+        alert(t('demo.login_error') || 'Error connecting to demo');
+        btn.disabled = false;
+        // Restore content (simplified)
+        window.location.reload();
+      }
+    });
+  });
 }

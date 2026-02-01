@@ -9,7 +9,8 @@
     "dashboard": "Dashboard",
     "profile": "Profile",
     "user": "User",
-    "logout": "Logout"
+    "logout": "Logout",
+    "demo": "Demo"
   },
   "hero": {
     "title": "Trusted Renovations with Registered Companies",
@@ -119,9 +120,9 @@
     "email": "Email",
     "username": "Username",
     "email_or_username": "Email or Username",
-    "identifier_placeholder": "Example: demo",
+    "identifier_placeholder": "Enter email or username",
     "password": "Password",
-    "password_placeholder": "demo123",
+    "password_placeholder": "Enter your password",
     "confirm_password": "Confirm Password",
     "sign_in": "Login",
     "sign_up": "Sign Up",
@@ -178,6 +179,7 @@
     "total_users": "Total Users",
     "total_jobs": "Total Ads",
     "total_companies": "Companies",
+    "all_users": "User Management",
     "no_pending_jobs": "There are no new ads pending approval at the moment.",
     "no_pending_companies": "No companies pending verification.",
     "moderation_queue": "Moderation Queue",
@@ -189,7 +191,17 @@
       "eik": "UIC/VAT",
       "city": "City",
       "status": "Status",
-      "action": "Action"
+      "action": "Action",
+      "username": "User Profile",
+      "email": "Email Address",
+      "role": "Access level",
+      "joined": "Registration Date"
+    },
+    "roles": {
+      "admin": "Administrator",
+      "company_admin": "Business Entity",
+      "consumer": "Customer",
+      "demo": "Demo User"
     },
     "confirm_approve": "Are you sure you want to approve this ad?",
     "confirm_reject": "Are you sure you want to reject this ad?",
@@ -205,6 +217,13 @@
   },
   "demo": {
     "notice": "<strong>Demo Mode:</strong> You are browsing as a Demo User. You can explore all features, but you cannot post real ads or change settings.",
+    "modal_title": "Explore RemontCo",
+    "modal_subtitle": "Select a role to explore the platform immediately:",
+    "as_consumer": "As Customer",
+    "as_consumer_desc": "See how to post jobs and choose contractors",
+    "as_company": "As Company",
+    "as_company_desc": "See how to send offers and work with clients",
+    "login_error": "Error activating demo mode. Please try again later.",
     "post_disabled": "Posting is disabled in Demo mode",
     "edit_disabled": "You cannot change settings in Demo mode",
     "save_disabled": "Saving is disabled in Demo",
