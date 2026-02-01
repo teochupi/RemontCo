@@ -226,12 +226,12 @@ async function loadMyOffers() {
                         </div>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <p class="mb-1 small text-muted">Предложена цена:</p>
-                                <p class="fw-bold fs-5 mb-0">${offer.price} лв.</p>
+                                <p class="mb-1 small text-muted">${t('offers.price_label')}:</p>
+                                <p class="fw-bold fs-5 mb-0">${offer.price} ${t('common.currency_bgn')}</p>
                             </div>
                             <div class="col-md-6">
-                                <p class="mb-1 small text-muted">Срок:</p>
-                                <p class="mb-0">${offer.timeline_days || 'Не е посочен'} дни</p>
+                                <p class="mb-1 small text-muted">${t('offers.timeline')}:</p>
+                                <p class="mb-0">${offer.timeline_days || t('common.not_specified')} ${t('dashboard_consumer.days')}</p>
                             </div>
                         </div>
                         <div class="mt-3 p-3 bg-light rounded-3 small">
@@ -504,8 +504,8 @@ function setupEventListeners() {
                 if (fileInput.files.length > 0) {
                     const file = fileInput.files[0];
                     const fileExt = file.name.split('.').pop();
-                    const fileName = `${Date.now()} -${jobId} -${currentCompany.id}.${fileExt} `;
-                    const filePath = `offers / ${fileName} `;
+                    const fileName = `${Date.now()}-${jobId}-${currentCompany.id}.${fileExt}`;
+                    const filePath = `offers/${fileName}`;
 
                     console.log('Uploading file:', filePath);
 
@@ -613,7 +613,7 @@ function setupEventListeners() {
 function handleHashNavigation() {
     const hash = window.location.hash;
     if (!hash) return;
-    const tabId = `v - pills - ${hash.substring(1)} -tab`;
+    const tabId = `v-pills-${hash.substring(1)}-tab`;
     const tabBtn = document.getElementById(tabId);
     if (tabBtn) tabBtn.click();
 }

@@ -194,7 +194,14 @@
     "confirm_approve": "Сигурни ли сте, че искате да одобрите тази обява?",
     "confirm_reject": "Сигурни ли сте, че искате да отхвърлите тази обява?",
     "job_request": "Обява",
-    "consumer": "Потребител"
+    "consumer": "Потребител",
+    "moderate": "Модерирай",
+    "moderate_job": "Модериране на обява",
+    "moderate_company": "Модериране на фирма",
+    "provide_reason": "Моля посочете причина!",
+    "confirm_revision_job": "Сигурни ли сте, че искате да върнете тази обява за редакция?",
+    "confirm_revision_company": "Сигурни ли сте, че искате да върнете регистрацията за корекция?",
+    "confirm_verify_company": "Сигурни ли сте, че искате да верифицирате тази фирма?"
   },
   "demo": {
     "notice": "<strong>Демо режим:</strong> Вие разглеждате платформата като Demo User. Можете да преглеждате функциите, но не можете да публикувате реални обяви.",
@@ -300,7 +307,7 @@
     "status_draft": "Чернова",
     "status_pending": "Чака одобрение",
     "status_approved": "Одобрена",
-    "status_rejected": "Отхвърлена",
+    "status_rejected": "Отказана",
     "status_closed": "Затворена",
     "edit_approval_warning": "След промяна, обявата ще бъде изпратена отново за одобрение от администратор."
   },
@@ -310,12 +317,12 @@
     "timeline": "Срок за изпълнение",
     "message": "Съобщение",
     "accept": "Приеми",
-    "reject": "Отхвърли",
+    "reject": "Отказ",
     "price_label": "Предложена Цена (EUR)",
     "unit_label": "Мярка",
     "unit_total": "Общо",
     "unit_m2": "кв.м.",
-    "unit_lm": "лин.м.",
+    "unit_lm": "л.м.",
     "unit_kg": "кг.",
     "unit_ton": "тон",
     "unit_hour": "час",
@@ -324,9 +331,9 @@
     "timeline_label": "Срок за изпълнение (дни)",
     "file_label": "Прикачете документ (PDF, Word)",
     "file_hint": "Опционално: Можете да добавите детайлна оферта или проект.",
-    "status_pending": "Изпратена",
-    "status_accepted": "Получена",
-    "status_rejected": "Отхвърлена"
+    "status_pending": "Чака преглед от потребител",
+    "status_accepted": "Прегледана от клиента",
+    "status_rejected": "Отказана"
   },
   "common": {
     "save": "Запази промените",
@@ -346,7 +353,9 @@
     "back": "Назад",
     "next": "Напред",
     "submit": "Изпрати",
-    "close": "Затвори"
+    "close": "Затвори",
+    "currency_bgn": "лв.",
+    "not_specified": "Не е посочен"
   },
   "messages": {
     "login_success": "Успешен вход",

@@ -304,7 +304,7 @@ async function loadUserJobs(userId) {
 
         // Filter out hidden quotes and recalculate count
         loadedJobs = data.map(job => {
-            const visibleQuotes = (job.quotes || []).filter(q => !q.is_hidden_by_consumer);
+            const visibleQuotes = (job.quotes || []).filter(q => !q.is_hidden_by_consumer && q.status !== 'rejected');
             return {
                 ...job,
                 quotes: visibleQuotes,
@@ -698,12 +698,15 @@ async function rejectQuote(quoteId) {
     try {
         const { error } = await supabase
             .from('quotes')
-            .update({ status: 'rejected' })
+            .update({
+                status: 'rejected',
+                is_hidden_by_consumer: true
+            })
             .eq('id', quoteId);
 
         if (error) throw error;
 
-        alert('Офертата беше отхвърлена.');
+        alert('Офертата беше отказана.');
 
         // Refresh the quotes view in the modal if possible, or just reload the whole page
         const modal = bootstrap.Modal.getInstance(document.getElementById('offersModal'));
@@ -841,7 +844,7 @@ async function openOffersModal(job) {
                                     <i class="bi bi-check-lg me-1"></i> Потвърждение за получаване
                                 </button>
                                 <button class="btn btn-outline-secondary rounded-pill px-4 reject-quote-btn" data-id="${quote.id}">
-                                    Отхвърли
+                                    ${t('offers.reject')}
                                 </button>
                             </div>
                         ` : ''}

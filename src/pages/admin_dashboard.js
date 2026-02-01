@@ -113,7 +113,7 @@ function renderJobList(data) {
                                 <i class="bi bi-check-circle-fill me-2"></i> ${t('common.confirm')}
                             </button>
                             <button class="btn btn-outline-danger rounded-pill moderate-job-btn px-4 ms-2" data-id="${job.id}">
-                                <i class="bi bi-exclamation-triangle me-1"></i> Модерирай
+                                <i class="bi bi-exclamation-triangle me-1"></i> ${t('admin.moderate')}
                             </button>
                         </div>
                     </div>
@@ -130,7 +130,7 @@ function renderJobList(data) {
         btn.addEventListener('click', () => {
             document.getElementById('moderation-id').value = btn.dataset.id;
             document.getElementById('moderation-type').value = 'job';
-            document.getElementById('moderationModalLabel').innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i> Модериране на обява';
+            document.getElementById('moderationModalLabel').innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i> ${t('admin.moderate_job')}`;
             document.getElementById('moderation-reason').value = '';
             const modal = new bootstrap.Modal(document.getElementById('moderationModal'));
             modal.show();
@@ -145,7 +145,7 @@ function renderJobList(data) {
             const type = document.getElementById('moderation-type').value;
             const reason = document.getElementById('moderation-reason').value;
             if (!reason) {
-                alert('Моля посочете причина!');
+                alert(t('admin.provide_reason'));
                 return;
             }
             if (type === 'job') {
@@ -161,7 +161,7 @@ function renderJobList(data) {
 }
 
 async function updateJobStatus(id, status, reason = null) {
-    const confirmMsg = status === 'approved' ? t('admin.confirm_approve') : 'Сигурни ли сте, че искате да върнете тази обява за редакция?';
+    const confirmMsg = status === 'approved' ? t('admin.confirm_approve') : t('admin.confirm_revision_job');
     if (!reason && !confirm(confirmMsg)) return;
 
     try {
@@ -221,7 +221,7 @@ async function loadPendingCompanies() {
                     </button>
                     <button class="btn btn-sm btn-outline-danger rounded-pill px-3 moderate-company-btn shadow-sm ms-2" 
                             data-id="${company.id}">
-                        <i class="bi bi-exclamation-triangle me-1"></i> Модерирай
+                        <i class="bi bi-exclamation-triangle me-1"></i> ${t('admin.moderate')}
                     </button>
                 </td>
             </tr>
@@ -236,7 +236,7 @@ async function loadPendingCompanies() {
             btn.addEventListener('click', () => {
                 document.getElementById('moderation-id').value = btn.dataset.id;
                 document.getElementById('moderation-type').value = 'company';
-                document.getElementById('moderationModalLabel').innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i> Модериране на фирма';
+                document.getElementById('moderationModalLabel').innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i> ${t('admin.moderate_company')}`;
                 document.getElementById('moderation-reason').value = '';
                 const modal = new bootstrap.Modal(document.getElementById('moderationModal'));
                 modal.show();
@@ -249,7 +249,7 @@ async function loadPendingCompanies() {
 }
 
 async function updateCompanyStatus(id, isVerified, reason = null) {
-    const confirmMsg = isVerified ? 'Сигурни ли сте, че искате да верифицирате тази фирма?' : 'Сигурни ли сте, че искате да върнете регистрацията за корекция?';
+    const confirmMsg = isVerified ? t('admin.confirm_verify_company') : t('admin.confirm_revision_company');
     if (!reason && !confirm(confirmMsg)) return;
 
     try {
