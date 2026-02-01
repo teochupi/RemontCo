@@ -62,7 +62,7 @@ export async function renderNavbar(container) {
             <li class="nav-item dropdown">
               <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-person-circle fs-5"></i>
-                <span>${user?.first_name || t('nav.user')}</span>
+                <span>${user?.username || user?.first_name || t('nav.user')}</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow">
                 <li><a class="dropdown-item py-2" href="${getDashboardUrl(user?.role)}" data-i18n="nav.dashboard"><i class="bi bi-speedometer2 me-2"></i> ${t('nav.dashboard')}</a></li>

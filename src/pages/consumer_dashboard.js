@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Set User Info
         const usernameEl = document.getElementById('username');
         if (usernameEl) {
-            usernameEl.textContent = userProfile.first_name ? `${userProfile.first_name} ${userProfile.last_name}` : (userProfile.username || 'User');
+            usernameEl.textContent = userProfile.username || (userProfile.first_name ? `${userProfile.first_name} ${userProfile.last_name}` : 'User');
         }
 
         // Fill Profile Form
