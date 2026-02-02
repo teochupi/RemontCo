@@ -310,6 +310,7 @@ async function loadMyOffers(isDemo = false) {
 
     try {
         const currentLang = getCurrentLanguage();
+        let data = [];
 
         if (isDemo) {
             data = [
