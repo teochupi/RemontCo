@@ -733,6 +733,13 @@ async function acceptQuote(quoteId, jobId) {
 
         alert('Получаването е потвърдено успешно!');
 
+        // Notify Company via Email (Background)
+        supabase.functions.invoke('notify-offer-status', {
+            body: { quote_id: quoteId, status: 'accepted' }
+        }).then(({ error }) => {
+            if (error) console.error('Failed to notify company:', error);
+        });
+
         // Reload dashboard
         const modal = bootstrap.Modal.getInstance(document.getElementById('offersModal'));
         if (modal) modal.hide();
@@ -783,6 +790,13 @@ async function rejectQuote(quoteId) {
         if (error) throw error;
 
         alert('Офертата беше отказана.');
+
+        // Notify Company via Email (Background)
+        supabase.functions.invoke('notify-offer-status', {
+            body: { quote_id: quoteId, status: 'rejected' }
+        }).then(({ error }) => {
+            if (error) console.error('Failed to notify company:', error);
+        });
 
         // Refresh the quotes view in the modal if possible, or just reload the whole page
         const modal = bootstrap.Modal.getInstance(document.getElementById('offersModal'));
