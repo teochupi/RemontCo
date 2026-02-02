@@ -749,6 +749,14 @@ function setupEventListeners(isDemo = false) {
                 }
 
                 console.log('Offer submission completed successfully');
+
+                // 3. Trigger Email Notification (Non-blocking)
+                supabase.functions.invoke('send-offer-email', {
+                    body: { record: insertedQuote }
+                }).then(({ error }) => {
+                    if (error) console.error('Email notification failed:', error);
+                });
+
                 alert('Офертата е изпратена успешно!');
 
                 const modalInstance = bootstrap.Modal.getInstance(document.getElementById('offerModal'));
