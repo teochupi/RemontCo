@@ -87,40 +87,79 @@ async function setupDemoMode() {
 
 async function loadRandomJobs() {
     try {
-        const { data: user } = await supabase.auth.getUser();
-        if (!user.user) return;
+        const currentLang = getCurrentLanguage();
+        const isBg = currentLang === 'bg';
 
-        // Fetch jobs with categories and quotes
-        const { data, error } = await supabase
-            .from('jobs')
-            .select(`
-                *,
-                category:service_categories(name_bg, name_en),
-                quotes:quotes(
-                    id, 
-                    price, 
-                    message, 
-                    status, 
-                    created_at,
-                    is_hidden_by_consumer,
-                    company:companies(name, city, is_verified)
-                )
-            `)
-            .eq('consumer_id', user.user.id)
-            .order('created_at', { ascending: false })
-            .limit(10);
+        // Fake Data Generation
+        const fakeJobs = [
+            {
+                id: 'demo-job-1',
+                title: 'Ремонт на баня',
+                title_en: 'Bathroom Renovation',
+                description: 'Търся майстор за цялостен ремонт на баня - къртене, плочки, ВиК и монтаж на санитария. Банята е 4 кв.м.',
+                description_en: 'Looking for a professional for full bathroom renovation - demolition, tiles, plumbing and sanitary installation. Bathroom is 4 sq.m.',
+                category: { name_bg: 'Ремонт на баня', name_en: 'Bathroom Renovation' },
+                city: 'София',
+                location: 'София',
+                status: 'approved',
+                created_at: new Date().toISOString(),
+                expires_at: new Date(Date.now() + 86400000 * 30).toISOString(),
+                budget_max: 3500,
+                quotes: [],
+                quotes_count: 3
+            },
+            {
+                id: 'demo-job-2',
+                title: 'Боядисване на апартамент',
+                title_en: 'Apartment Painting',
+                description: 'Тристраен апартамент, 85 кв.м. Желаем боядисване с латекс в светли тонове. Стените са шпакловани.',
+                description_en: 'Three-room apartment, 85 sq.m. We want latex painting in light tones. Walls are plastered.',
+                category: { name_bg: 'Боядисване', name_en: 'Painting' },
+                city: 'Пловдив',
+                location: 'Пловдив',
+                status: 'pending',
+                created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+                expires_at: new Date(Date.now() + 86400000 * 28).toISOString(),
+                budget_max: null,
+                quotes: [],
+                quotes_count: 0
+            },
+            {
+                id: 'demo-job-3',
+                title: 'Монтаж на климатик',
+                title_en: 'AC Installation',
+                description: 'Монтаж на инверторен климатик 12-ка на 3-ти етаж. Има готов тръбен път.',
+                description_en: 'Installation of inverter AC 12k BTU on 3rd floor. Pipes are already laid.',
+                category: { name_bg: 'Отопление и климатизация', name_en: 'Heating & AC' },
+                city: 'Варна',
+                location: 'Варна',
+                status: 'approved',
+                created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+                expires_at: new Date(Date.now() + 86400000 * 15).toISOString(),
+                budget_max: 250,
+                quotes: [],
+                quotes_count: 5
+            },
+            {
+                id: 'demo-job-4',
+                title: 'Смяна на ел. инсталация',
+                title_en: 'Electrical Wiring Replacement',
+                description: 'Стара тухлена кооперация, нужно е да се подмери цялата инсталация в кухнята.',
+                description_en: 'Old brick building, need to replace all wiring in the kitchen.',
+                category: { name_bg: 'Електро услуги', name_en: 'Electrical Services' },
+                city: 'София',
+                location: 'София',
+                status: 'closed',
+                created_at: new Date(Date.now() - 86400000 * 40).toISOString(),
+                expires_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+                budget_max: 800,
+                quotes: [],
+                quotes_count: 2
+            }
+        ];
 
-        if (error) throw error;
-
-        // Enrich and filter data
-        loadedJobs = data.map(job => {
-            const visibleQuotes = (job.quotes || []).filter(q => !q.is_hidden_by_consumer && q.status !== 'rejected');
-            return {
-                ...job,
-                quotes: visibleQuotes,
-                quotes_count: visibleQuotes.length
-            };
-        });
+        // Assign to global variable so event listeners work
+        loadedJobs = fakeJobs;
 
         renderJobs(loadedJobs, true);
     } catch (err) {
@@ -175,7 +214,7 @@ async function loadRandomCompanies() {
 
         companiesList.innerHTML = displayCompanies.map(company => {
             let city = company.city || '';
-            let description = company.description || '';
+            let description = company.description;
             let name = company.name || '';
 
             // Translate city to Latin if language is English
@@ -184,7 +223,7 @@ async function loadRandomCompanies() {
             }
 
             // Specific handling for SoftUni description if missing
-            if (name.includes('СофтУни') && !description) {
+            if ((!description || description.trim() === '') && name.toLowerCase().includes('софтуни')) {
                 description = currentLang === 'bg'
                     ? 'Лидер в технологичното образование и професионалното обучение.'
                     : 'Leader in technology education and professional training.';
@@ -204,6 +243,11 @@ async function loadRandomCompanies() {
                             <hr class="opacity-10">
                             <p class="card-text text-truncate-2 small opacity-75">${description}</p>
                         </div>
+                         <div class="card-footer bg-white border-0 pt-0 pb-4 px-4">
+                             <a href="/company.html?id=${company.id}" class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold">
+                                 ${t('company.view_profile')}
+                             </a>
+                         </div>
                     </div>
                 </div>
             `;

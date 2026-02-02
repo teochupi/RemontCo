@@ -146,7 +146,18 @@ function displayCompanies(companies) {
           <p class="text-muted small mb-3">
             <i class="bi bi-building me-1 text-primary"></i> EIK: ${company.eik}
           </p>
-          ${company.description ? `<p class="card-text text-secondary small">${company.description.substring(0, 100)}...</p>` : ''}
+          ${(() => {
+        let description = company.description;
+        if (!description && company.name.includes('СофтУни')) {
+          const currentLang = localStorage.getItem('remontco_language') || 'bg';
+          description = currentLang === 'bg'
+            ? 'Лидер в технологичното образование и професионалното обучение.'
+            : 'Leader in technology education and professional training.';
+        }
+        return description
+          ? `<p class="card-text text-secondary small">${description.substring(0, 100)}...</p>`
+          : '<p class="text-muted small fst-italic">Няма въведено описание.</p>';
+      })()}
         </div>
         <div class="card-footer bg-white border-0 pt-0 pb-4 px-4">
           <a href="/company.html?id=${company.id}" class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold">

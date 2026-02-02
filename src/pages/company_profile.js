@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
+
+
+
 async function loadCompanyData(id) {
   try {
     const { data: company, error } = await supabase
@@ -31,6 +34,15 @@ async function loadCompanyData(id) {
       .single();
 
     if (error) throw error;
+
+    // --- DEMO MODE ENHANCEMENTS ---
+    // Inject SoftUni description if missing
+    if (company.name.includes('СофтУни') && !company.description) {
+      const currentLang = localStorage.getItem('remontco_language') || 'bg';
+      company.description = currentLang === 'bg'
+        ? 'Лидер в технологичното образование и професионалното обучение.'
+        : 'Leader in technology education and professional training.';
+    }
 
     // Set UI
     document.getElementById('company-name').textContent = company.name;
@@ -59,8 +71,8 @@ async function loadCompanyData(id) {
     // 4. Load Services
     loadServices(id);
 
-    // 5. Load Portfolio (REAL Projects)
-    loadPortfolio(id);
+    // 5. Load Portfolio (REAL Projects or FAKE if data missing)
+    loadPortfolio(id, company.name);
 
   } catch (err) {
     console.error('Error loading company details:', err);
@@ -100,7 +112,7 @@ async function loadServices(companyId) {
   }
 }
 
-async function loadPortfolio(companyId) {
+async function loadPortfolio(companyId, companyName) {
   const portfolioContainer = document.getElementById('company-portfolio');
   try {
     const { data: projects, error } = await supabase
@@ -111,26 +123,81 @@ async function loadPortfolio(companyId) {
 
     if (error) throw error;
 
-    if (!projects || projects.length === 0) {
+    let displayProjects = projects || [];
+
+    // --- DEMO MODE ENHANCEMENTS ---
+    // If no portfolio and not SoftUni (which might have real data or we want to force it elsewhere)
+    // Note: If SoftUni has data in DB, it shows. If not, we generate random ones.
+    if (displayProjects.length === 0) {
+      // Pool of local project images
+      const portfolioPool = [
+        {
+          url: '/image_1.jpg',
+          title: 'Монтажни дейности',
+          desc: 'Професионално изпълнение на монтажни работи.'
+        },
+        {
+          url: '/image_2.jpg',
+          title: 'Строителен обект',
+          desc: 'Комплексни строителни услуги и ремонти.'
+        },
+        {
+          url: '/image_3.jpg',
+          title: 'Интериорен дизайн',
+          desc: 'Модерни решения за вашия дом.'
+        },
+        {
+          url: '/image_4.jpg',
+          title: 'Реновация',
+          desc: 'Качествено обновяване на жилищни площи.'
+        },
+        {
+          url: '/image_5.jpg',
+          title: 'Довършителни работи',
+          desc: 'Фини довършителни дейности и декорации.'
+        }
+      ];
+
+      // Deterministically select 1 image based on companyId
+      let seed = 0;
+      if (companyId) {
+        for (let i = 0; i < companyId.length; i++) {
+          seed += companyId.charCodeAt(i);
+        }
+      }
+
+      // Use mod operator to cycle through the 5 images
+      const index = seed % portfolioPool.length;
+      const selectedImage = portfolioPool[index];
+
+      displayProjects = [{
+        image_url: selectedImage.url,
+        title: selectedImage.title,
+        description: selectedImage.desc
+      }];
+    }
+    // -----------------------------
+
+    if (displayProjects.length === 0) {
       portfolioContainer.innerHTML = `<div class="col-12 text-center text-muted py-4">${t('company.no_portfolio')}</div>`;
       return;
     }
 
-    portfolioContainer.innerHTML = projects.map(project => `
+    portfolioContainer.innerHTML = displayProjects.map(project => `
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-scale portfolio-card" 
                      style="cursor: pointer;"
                      data-url="${project.image_url}"
-                     data-title="${project.title}"
+                     data-title="${project.title || ''}"
                      data-desc="${project.description || ''}">
                     <div class="position-relative">
-                        <img src="${project.image_url}" class="card-img-top" alt="${project.title}" style="height: 220px; object-fit: cover;">
+                        <img src="${project.image_url}" class="card-img-top" alt="${project.title || 'Portfolio'}" style="height: 220px; object-fit: cover;">
                         <div class="portfolio-overlay">
                             <i class="bi bi-zoom-in text-white fs-2"></i>
                         </div>
                     </div>
                     <div class="card-body p-3 text-center">
-                        <h6 class="fw-bold mb-1">${project.title}</h6>
+                        <h6 class="fw-bold mb-1">${project.title || ''}</h6>
                         <p class="text-muted small mb-0">${project.description || ''}</p>
                     </div>
                 </div>
@@ -138,16 +205,19 @@ async function loadPortfolio(companyId) {
         `).join('');
 
     // Attach click events for modal
-    const modal = new bootstrap.Modal(document.getElementById('imageViewerModal'));
+    const modalEl = document.getElementById('imageViewerModal');
+    if (!modalEl) return;
+
+    const modal = new bootstrap.Modal(modalEl);
     const modalImg = document.getElementById('full-portfolio-image');
     const modalTitle = document.getElementById('portfolio-modal-title');
     const modalDesc = document.getElementById('portfolio-modal-desc');
 
     document.querySelectorAll('.portfolio-card').forEach(card => {
       card.addEventListener('click', () => {
-        modalImg.src = card.dataset.url;
-        modalTitle.textContent = card.dataset.title;
-        modalDesc.textContent = card.dataset.desc;
+        if (modalImg) modalImg.src = card.dataset.url;
+        if (modalTitle) modalTitle.textContent = card.dataset.title;
+        if (modalDesc) modalDesc.textContent = card.dataset.desc;
         modal.show();
       });
     });
