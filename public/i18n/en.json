@@ -300,7 +300,7 @@
     "edit_profile": "Edit Profile",
     "sent_offers": "Sent Offers",
     "find_work": "Find Work",
-    "about_title": "About company - optional",
+    "about_title": "About company",
     "services_title": "Services",
     "no_services": "No services listed.",
     "portfolio_title": "Portfolio",
@@ -311,7 +311,7 @@
     "under_verification": "Under Verification",
     "verified_partner": "Verified Partner",
     "select_city": "Select a city",
-    "website": "Website - optional",
+    "website": "Website",
     "about_hint": "Tell us more about your activity...",
     "website_hint": "https://www.example.com",
     "not_available": "Not available"

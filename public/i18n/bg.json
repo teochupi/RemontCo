@@ -300,7 +300,7 @@
     "search_placeholder": "Търсене на компании...",
     "all_categories": "Всички Категории",
     "all_cities": "Всички Градове",
-    "about_title": "За компанията - опционално",
+    "about_title": "За компанията",
     "services_title": "Услуги",
     "no_services": "Няма изброени услуги.",
     "portfolio_title": "Портфолио",
@@ -311,7 +311,7 @@
     "under_verification": "В процес на верификация",
     "verified_partner": "Верифициран Партньор",
     "select_city": "Изберете град",
-    "website": "Уебсайт - опционално",
+    "website": "Уебсайт",
     "about_hint": "Разкажете малко повече за вашата дейност...",
     "website_hint": "https://www.example.com",
     "not_available": "Няма информация"
