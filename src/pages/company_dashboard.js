@@ -7,35 +7,112 @@ let currentCompany = null;
 let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Guard access
-    const user = await requireRole(['company_admin', 'company_member', 'admin']);
-    if (!user) return;
-    currentUser = user;
+    try {
+        // 1. Guard access - Allow company admins, members, admins, and demo users
+        const user = await requireRole(['company_admin', 'company_member', 'admin', 'demo']);
+        if (!user) return;
+        currentUser = user;
 
-    // 2. Initialize UI
-    await initI18n();
-    await renderNavbar(document.getElementById('navbar-container'));
-    translatePage();
+        // 2. Initialize UI
+        await initI18n();
+        await renderNavbar(document.getElementById('navbar-container'));
+        translatePage();
 
-    // 3. Fetch Company Info
-    await loadCompanyDetails(user.id);
+        const isDemo = user.role === 'demo' || user.email === 'company-demo@remont.co';
 
-    // 4. Load Data (if company exists)
-    if (currentCompany) {
-        loadAvailableJobs();
-        loadMyOffers();
-        loadFavorites();
-        loadPortfolio();
+        if (isDemo) {
+            setupDemoMode();
+        } else {
+            // 3. Fetch Company Info
+            await loadCompanyDetails(user.id);
+
+            // 4. Load Data (if company exists)
+            if (currentCompany) {
+                loadAvailableJobs();
+                loadMyOffers();
+                loadFavorites();
+                loadPortfolio();
+            }
+        }
+
+        // 5. Setup Events
+        setupEventListeners(isDemo);
+
+        // 6. Handle hash navigation
+        handleHashNavigation();
+        window.addEventListener('hashchange', handleHashNavigation);
+
+        // 7. Reveal the page
+        document.body.classList.add('ready');
+    } catch (err) {
+        console.error('Initialization error:', err);
+        document.body.classList.add('ready');
+    }
+});
+
+/**
+ * Setup Demo Mode: Load random/mock data and show demo notices
+ */
+async function setupDemoMode() {
+    const currentLang = getCurrentLanguage();
+    // 1. Mock Company Data
+    currentCompany = {
+        id: 'demo-company-id',
+        name: currentLang === 'bg' ? 'Демо Ремонти ЕООД' : 'Demo Renovation Ltd.',
+        eik: '123456789',
+        city: currentLang === 'bg' ? 'София' : 'Sofia',
+        phone: '0888 123 456',
+        address: currentLang === 'bg' ? 'ул. Демонстрационна 10' : '10 Demonstration St.',
+        website: 'www.demo-remonti.bg',
+        description: currentLang === 'bg'
+            ? 'Ние сме лидер в сферата на професионалните ремонти. Това е демо профил за тестване на функционалностите на платформата.'
+            : 'We are a leader in the field of professional renovations. This is a demo profile for testing the platform functionalities.',
+        is_verified: true
+    };
+
+    const companyNameEl = document.getElementById('company-name');
+    if (companyNameEl) companyNameEl.textContent = currentCompany.name;
+
+    // Populate profile form
+    const fields = {
+        'profile-company-name': currentCompany.name,
+        'profile-company-eik': currentCompany.eik,
+        'profile-company-city': currentCompany.city,
+        'profile-company-phone': currentCompany.phone,
+        'profile-company-address': currentCompany.address,
+        'profile-company-website': currentCompany.website,
+        'profile-company-description': currentCompany.description
+    };
+
+    for (const [id, value] of Object.entries(fields)) {
+        const el = document.getElementById(id);
+        if (el) el.value = value;
     }
 
-    // 5. Setup Events
-    const isDemo = user.email === 'company-demo@remont.co';
-    setupEventListeners(isDemo);
+    // 2. Show Notice
+    const notification = document.getElementById('status-notification');
+    if (notification) {
+        notification.innerHTML = `
+            <div class="alert alert-info border-0 shadow-sm rounded-4 mb-4 d-flex align-items-center p-3 animate-fade-in">
+                <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                <div>${t('demo.notice_company')}</div>
+            </div>
+        `;
+    }
 
-    // 6. Handle hash navigation
-    handleHashNavigation();
-    window.addEventListener('hashchange', handleHashNavigation);
-});
+    const badge = document.getElementById('verification-badge');
+    if (badge) {
+        badge.innerHTML = `<span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+            <i class="bi bi-patch-check-fill me-1"></i> ${t('company.verified')}</span>`;
+    }
+
+    // 3. Load Mock Content
+    loadAvailableJobs(true); // pass true for isDemo
+    loadMyOffers(true);
+    loadFavorites(true);
+    loadPortfolio(true);
+}
+
 
 async function loadCompanyDetails(userId) {
     try {
@@ -93,31 +170,85 @@ async function loadCompanyDetails(userId) {
     }
 }
 
-async function loadAvailableJobs() {
+async function loadAvailableJobs(isDemo = false) {
     const list = document.getElementById('available-jobs-list');
     try {
-        // Fetch approved jobs
-        const { data, error } = await supabase
-            .from('jobs')
-            .select(`
-                *,
-                category:service_categories(name_bg, name_en)
-            `)
-            .eq('status', 'approved')
-            .gt('expires_at', new Date().toISOString())
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        // Fetch user favorites
-        const { data: favs } = await supabase
-            .from('favorites')
-            .select('job_id')
-            .eq('company_id', currentCompany.id);
-
-        const favIds = new Set(favs?.map(f => f.job_id) || []);
-
+        let data = [];
+        let favIds = new Set();
         const currentLang = getCurrentLanguage();
+        const cityMap = {
+            'София': 'Sofia',
+            'Пловдив': 'Plovdiv',
+            'Варна': 'Varna',
+            'Стара Загора': 'Stara Zagora',
+            'Велико Търново': 'Veliko Tarnovo',
+            'Плевен': 'Pleven',
+            'Бургас': 'Burgas',
+            'Русе': 'Ruse'
+        };
+
+        if (isDemo) {
+            data = [
+                {
+                    id: 'demo-job-1',
+                    title: currentLang === 'bg' ? 'Ремонт на баня 5кв.м.' : 'Bathroom renovation 5sq.m.',
+                    city: 'София',
+                    description: currentLang === 'bg'
+                        ? 'Търсим фирма за цялостен ремонт на баня - плочки, ВиК и монтаж на санитария.'
+                        : 'Looking for a company for a complete bathroom renovation - tiles, plumbing and installation.',
+                    created_at: new Date().toISOString(),
+                    budget_min: 2500,
+                    budget_max: 3500,
+                    category: { name_bg: 'ВиК', name_en: 'Plumbing' }
+                },
+                {
+                    id: 'demo-job-2',
+                    title: currentLang === 'bg' ? 'Боядисване на офис' : 'Office painting',
+                    city: 'Варна',
+                    description: currentLang === 'bg'
+                        ? 'Освежаващо боядисване на стени и тавани in три стаи. Около 120кв.м. обща площ.'
+                        : 'Fresh painting of walls and ceilings in three rooms. About 120sq.m. total area.',
+                    created_at: new Date().toISOString(),
+                    budget_min: 600,
+                    budget_max: 1000,
+                    category: { name_bg: 'Бояджийство', name_en: 'Painting' }
+                },
+                {
+                    id: 'demo-job-3',
+                    title: currentLang === 'bg' ? 'Смяна на ел. табло' : 'Electrical panel replacement',
+                    city: 'Пловдив',
+                    description: currentLang === 'bg'
+                        ? 'Необходима е смяна на старо ел. табло с нови автоматични предпазители.'
+                        : 'Replacement of an old electrical panel with new automatic fuses is required.',
+                    created_at: new Date().toISOString(),
+                    budget_min: 200,
+                    budget_max: 400,
+                    category: { name_bg: 'Ел. Инсталации', name_en: 'Electrical' }
+                }
+            ];
+        } else {
+            // Fetch approved jobs
+            const { data: realData, error } = await supabase
+                .from('jobs')
+                .select(`
+                    *,
+                    category:service_categories(name_bg, name_en)
+                `)
+                .eq('status', 'approved')
+                .gt('expires_at', new Date().toISOString())
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            data = realData;
+
+            // Fetch user favorites
+            const { data: favs } = await supabase
+                .from('favorites')
+                .select('job_id')
+                .eq('company_id', currentCompany.id);
+
+            favIds = new Set(favs?.map(f => f.job_id) || []);
+        }
 
         if (data.length === 0) {
             list.innerHTML = `
@@ -143,7 +274,7 @@ async function loadAvailableJobs() {
                                     <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> ${new Date(job.created_at).toLocaleDateString()}</small>
                                 </div>
                                 <h5 class="fw-bold mb-2">${job.title}</h5>
-                                <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-1"></i> ${job.city || job.location}</p>
+                                <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-1"></i> ${currentLang === 'en' && cityMap[job.city] ? cityMap[job.city] : (job.city || job.location)}</p>
                                 <p class="mt-3 text-secondary text-italic">${job.description}</p>
                             </div>
                             <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -173,25 +304,60 @@ async function loadAvailableJobs() {
     }
 }
 
-async function loadMyOffers() {
+async function loadMyOffers(isDemo = false) {
     const list = document.getElementById('company-offers-list');
     if (!currentCompany) return;
 
     try {
-        const { data, error } = await supabase
-            .from('quotes')
-            .select(`
-                *,
-                job:jobs(title, city)
-            `)
-            .eq('company_id', currentCompany.id)
-            .eq('is_hidden_by_company', false)
-            .order('created_at', { ascending: false });
+        const currentLang = getCurrentLanguage();
 
-        if (error) throw error;
+        if (isDemo) {
+            data = [
+                {
+                    id: 'demo-offer-1',
+                    status: 'pending',
+                    price: 2800,
+                    timeline_days: 10,
+                    message: currentLang === 'bg'
+                        ? 'Здравейте, можем да започнем ремонта на вашата баня още следващата седмица. Имаме голям опит с подобни малки проекти.'
+                        : 'Hello, we can start your bathroom renovation as early as next week. We have great experience with such small projects.',
+                    created_at: new Date().toISOString(),
+                    job: {
+                        title: currentLang === 'bg' ? 'Ремонт на баня 5кв.м.' : 'Bathroom renovation 5sq.m.',
+                        city: currentLang === 'bg' ? 'София' : 'Sofia'
+                    }
+                },
+                {
+                    id: 'demo-offer-2',
+                    status: 'accepted',
+                    price: 850,
+                    timeline_days: 3,
+                    message: currentLang === 'bg'
+                        ? 'Предлагаме качествено боядисване с латекс по ваш избор. Срокът за изпълнение е 3 работни дни.'
+                        : 'We offer high-quality latex painting of your choice. The completion time is 3 working days.',
+                    created_at: new Date().toISOString(),
+                    job: {
+                        title: currentLang === 'bg' ? 'Боядисване на офис' : 'Office painting',
+                        city: currentLang === 'bg' ? 'Варна' : 'Varna'
+                    }
+                }
+            ];
+        } else {
+            const { data: realData, error } = await supabase
+                .from('quotes')
+                .select(`
+                    *,
+                    job:jobs(title, city)
+                `)
+                .eq('company_id', currentCompany.id)
+                .eq('is_hidden_by_company', false)
+                .order('created_at', { ascending: false });
 
-        const filteredData = data; // Already filtered by SQL but just in case
-        if (filteredData.length === 0) {
+            if (error) throw error;
+            data = realData;
+        }
+
+        if (data.length === 0) {
             list.innerHTML = `
                 <div class="col-12 text-center py-5">
                     <p class="text-muted">Все още нямате изпратени оферти.</p>
@@ -246,24 +412,57 @@ async function loadMyOffers() {
         console.error('Error loading offers:', err);
     }
 }
-async function loadFavorites() {
+async function loadFavorites(isDemo = false) {
     const list = document.getElementById('favorites-list');
     if (!currentCompany) return;
 
     try {
-        const { data, error } = await supabase
-            .from('favorites')
-            .select(`
-            *,
-            job: jobs(
-                    *,
-                category: service_categories(name_bg, name_en)
-            )
-                `)
-            .eq('company_id', currentCompany.id)
-            .order('created_at', { ascending: false });
+        let data = [];
+        const currentLang = getCurrentLanguage();
+        const cityMap = {
+            'София': 'Sofia',
+            'Пловдив': 'Plovdiv',
+            'Варна': 'Varna',
+            'Стара Загора': 'Stara Zagora',
+            'Велико Търново': 'Veliko Tarnovo',
+            'Плевен': 'Pleven',
+            'Бургас': 'Burgas',
+            'Русе': 'Ruse'
+        };
 
-        if (error) throw error;
+        if (isDemo) {
+            data = [
+                {
+                    job: {
+                        id: 'demo-job-3',
+                        title: currentLang === 'bg' ? 'Смяна на ел. табло' : 'Electrical panel replacement',
+                        city: 'Пловдив',
+                        description: currentLang === 'bg'
+                            ? 'Необходима е смяна на старо ел. табло с нови автоматични предпазители.'
+                            : 'Replacement of an old electrical panel with new automatic fuses is required.',
+                        created_at: new Date().toISOString(),
+                        budget_min: 200,
+                        budget_max: 400,
+                        category: { name_bg: 'Ел. Инсталации', name_en: 'Electrical' }
+                    }
+                }
+            ];
+        } else {
+            const { data: realData, error } = await supabase
+                .from('favorites')
+                .select(`
+                *,
+                job: jobs(
+                        *,
+                    category: service_categories(name_bg, name_en)
+                )
+                    `)
+                .eq('company_id', currentCompany.id)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            data = realData;
+        }
 
         if (data.length === 0) {
             list.innerHTML = `
@@ -272,8 +471,6 @@ async function loadFavorites() {
                 </div>`;
             return;
         }
-
-        const currentLang = getCurrentLanguage();
 
         list.innerHTML = data.map(fav => {
             const job = fav.job;
@@ -292,7 +489,7 @@ async function loadFavorites() {
                                     <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> ${new Date(job.created_at).toLocaleDateString()}</small>
                                 </div>
                                 <h5 class="fw-bold mb-2">${job.title}</h5>
-                                <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-1"></i> ${job.city || job.location}</p>
+                                <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-1"></i> ${currentLang === 'en' && cityMap[job.city] ? cityMap[job.city] : (job.city || job.location)}</p>
                                 <p class="mt-3 text-secondary text-italic">${job.description}</p>
                             </div>
                             <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -306,7 +503,7 @@ async function loadFavorites() {
                                         <i class="bi bi-send-fill me-1"></i> ${t('offers.send_offer')}
                                     </button>
                                     <button class="btn btn-outline-danger btn-sm rounded-pill remove-favorite-btn w-auto" data-id="${job.id}">
-                                        <i class="bi bi-heart-fill me-1"></i> Премахни
+                                        <i class="bi bi-heart-fill me-1"></i> ${t('common.remove')}
                                     </button>
                                 </div>
                             </div>
@@ -639,18 +836,38 @@ function handleHashNavigation() {
     if (tabBtn) tabBtn.click();
 }
 
-async function loadPortfolio() {
+async function loadPortfolio(isDemo = false) {
     const list = document.getElementById('company-portfolio-list');
     if (!currentCompany) return;
 
     try {
-        const { data, error } = await supabase
-            .from('company_portfolio')
-            .select('*')
-            .eq('company_id', currentCompany.id)
-            .order('created_at', { ascending: false });
+        let data = [];
+        const currentLang = getCurrentLanguage();
+        if (isDemo) {
+            data = [
+                {
+                    id: 'demo-port-1',
+                    title: currentLang === 'bg' ? 'Луксозен апартамент Лозенец' : 'Luxury Apartment Lozenets',
+                    description: currentLang === 'bg' ? 'Цялостен интериорен проект и изпълнение.' : 'Complete interior project and execution.',
+                    image_url: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80'
+                },
+                {
+                    id: 'demo-port-2',
+                    title: currentLang === 'bg' ? 'Реновация на къща в Бистрица' : 'House Renovation in Bistritsa',
+                    description: currentLang === 'bg' ? 'Фасадна изолация и нов покрив.' : 'Facade insulation and new roof.',
+                    image_url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
+                }
+            ];
+        } else {
+            const { data: realData, error } = await supabase
+                .from('company_portfolio')
+                .select('*')
+                .eq('company_id', currentCompany.id)
+                .order('created_at', { ascending: false });
 
-        if (error) throw error;
+            if (error) throw error;
+            data = realData;
+        }
 
         if (data.length === 0) {
             list.innerHTML = `
@@ -681,7 +898,6 @@ async function loadPortfolio() {
         // Attach delete events
         document.querySelectorAll('.delete-portfolio-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const isDemo = currentUser.email === 'company-demo@remont.co';
                 if (isDemo) {
                     alert(t('demo.demo_alert'));
                     return;

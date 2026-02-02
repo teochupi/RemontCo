@@ -31,7 +31,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             console.log('Reset request success');
             showAlert('success', t('messages.reset_link_sent'));
-            form.reset();
+            form.classList.add('d-none');
+            return; // Early return to not reach finally or continue form interaction
 
         } catch (error) {
             console.error('Detailed Error Context:', error);
@@ -43,8 +44,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             showAlert('danger', errorMessage);
         } finally {
-            submitBtn.disabled = false;
-            spinner.classList.add('d-none');
+            if (!form.classList.contains('d-none')) {
+                submitBtn.disabled = false;
+                spinner.classList.add('d-none');
+            }
         }
     });
 

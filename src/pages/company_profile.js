@@ -56,13 +56,47 @@ async function loadCompanyData(id) {
       badges.innerHTML = `<span class="badge bg-warning text-dark"><i class="bi bi-clock-history me-1"></i> ${t('company.under_verification')}</span>`;
     }
 
-    // 4. Load Portfolio (REAL Projects)
+    // 4. Load Services
+    loadServices(id);
+
+    // 5. Load Portfolio (REAL Projects)
     loadPortfolio(id);
 
   } catch (err) {
     console.error('Error loading company details:', err);
     alert('Company not found.');
     window.location.href = '/companies.html';
+  }
+}
+
+async function loadServices(companyId) {
+  const servicesContainer = document.getElementById('company-services');
+  const currentLang = localStorage.getItem('remontco_language') || 'bg';
+
+  try {
+    const { data: services, error } = await supabase
+      .from('company_services')
+      .select('*, service_categories(*)')
+      .eq('company_id', companyId);
+
+    if (error) throw error;
+
+    if (!services || services.length === 0) {
+      servicesContainer.innerHTML = `<span class="text-muted italic">${t('company.no_services')}</span>`;
+      return;
+    }
+
+    servicesContainer.innerHTML = services.map(s => {
+      const cat = s.service_categories;
+      const name = currentLang === 'bg' ? cat.name_bg : cat.name_en;
+      return `<span class="badge rounded-pill bg-light text-primary border border-primary-light px-3 py-2">
+                <i class="bi ${cat.icon || 'bi-check2-circle'} me-1"></i> ${name}
+              </span>`;
+    }).join('');
+
+  } catch (err) {
+    console.error('Error loading services:', err);
+    servicesContainer.innerHTML = '<span class="text-danger small">Error loading services.</span>';
   }
 }
 

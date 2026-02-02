@@ -216,7 +216,7 @@ function renderDemoModal() {
     btn.addEventListener('click', async () => {
       const type = btn.dataset.type;
       const email = type === 'consumer' ? 'demo@remont.co' : 'company-demo@remont.co';
-      const password = 'Remont2026!';
+      const password = 'demo123'; // Standard demo password for both now
 
       try {
         btn.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div>';

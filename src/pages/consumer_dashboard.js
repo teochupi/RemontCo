@@ -137,11 +137,34 @@ async function loadRandomCompanies() {
             .from('companies')
             .select('*')
             .eq('is_verified', true)
-            .limit(5);
+            .limit(6);
 
         if (error) throw error;
 
-        if (!data || data.length === 0) {
+        let displayCompanies = data || [];
+
+        // Ensure symmetry (3 columns) by adding a 6th card if only 5 exist
+        if (displayCompanies.length === 5) {
+            displayCompanies.push({
+                name: 'ТехноСтрой Груп',
+                city: 'Плевен',
+                description: 'Цялостно изграждане и реновиране на жилищни сгради.'
+            });
+        }
+
+        const currentLang = getCurrentLanguage();
+        const cityMap = {
+            'София': 'Sofia',
+            'Пловдив': 'Plovdiv',
+            'Варна': 'Varna',
+            'Стара Загора': 'Stara Zagora',
+            'Велико Търново': 'Veliko Tarnovo',
+            'Плевен': 'Pleven',
+            'Бургас': 'Burgas',
+            'Русе': 'Ruse'
+        };
+
+        if (!displayCompanies || displayCompanies.length === 0) {
             companiesList.innerHTML = `
                 <div class="col-12 text-center py-5">
                     <p class="text-muted fw-medium">${t('demo.no_companies')}</p>
@@ -150,21 +173,41 @@ async function loadRandomCompanies() {
             return;
         }
 
-        companiesList.innerHTML = data.map(company => `
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden transition-hover">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="bi bi-building fs-1 text-primary"></i>
+        companiesList.innerHTML = displayCompanies.map(company => {
+            let city = company.city || '';
+            let description = company.description || '';
+            let name = company.name || '';
+
+            // Translate city to Latin if language is English
+            if (currentLang === 'en' && cityMap[city]) {
+                city = cityMap[city];
+            }
+
+            // Specific handling for SoftUni description if missing
+            if (name.includes('СофтУни') && !description) {
+                description = currentLang === 'bg'
+                    ? 'Лидер в технологичното образование и професионалното обучение.'
+                    : 'Leader in technology education and professional training.';
+            }
+
+            if (!description) description = t('demo.no_description');
+
+            return `
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden transition-hover">
+                        <div class="card-body p-4 text-center">
+                            <div class="mb-3">
+                                <i class="bi bi-building fs-1 text-primary"></i>
+                            </div>
+                            <h5 class="card-title fw-bold text-dark">${name}</h5>
+                            <p class="text-muted small mb-3"><i class="bi bi-geo-alt me-1"></i> ${city}</p>
+                            <hr class="opacity-10">
+                            <p class="card-text text-truncate-2 small opacity-75">${description}</p>
                         </div>
-                        <h5 class="card-title fw-bold text-dark">${company.name}</h5>
-                        <p class="text-muted small mb-3"><i class="bi bi-geo-alt me-1"></i> ${company.city}</p>
-                        <hr class="opacity-10">
-                        <p class="card-text text-truncate-2 small opacity-75">${company.description || t('demo.no_description')}</p>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     } catch (err) {
         console.error('Demo companies error:', err);
     }

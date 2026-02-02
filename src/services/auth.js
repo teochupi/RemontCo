@@ -16,17 +16,22 @@ export async function signIn(identifier, password) {
 
   // Check if identifier is not an email
   if (!identifier.includes('@')) {
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('email')
-      .eq('username', identifier.toLowerCase())
-      .single();
+    // Hardcoded fallback for admin to bypass RLS issues on profiles table for anonymous users
+    if (identifier.toLowerCase() === 'admin') {
+      email = 'chupetlov.teodor@gmail.com';
+    } else {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('username', identifier.toLowerCase())
+        .single();
 
-    if (profileError || !profile) {
-      throw new Error('Invalid username or email');
+      if (profileError || !profile) {
+        throw new Error('Invalid username or email');
+      }
+
+      email = profile.email;
     }
-
-    email = profile.email;
   }
 
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -95,10 +100,12 @@ export async function registerCompany(email, username, password, companyData) {
       owner_id: authData.user.id,
       name: companyData.name,
       eik: companyData.eik,
+      description: companyData.description,
       address: companyData.address,
       city: companyData.city,
       phone: companyData.phone,
       email: email,
+      website: companyData.website,
       is_verified: false,
       status: 'pending'
     })
@@ -106,6 +113,24 @@ export async function registerCompany(email, username, password, companyData) {
     .single();
 
   if (companyError) throw companyError;
+
+  // Insert selected categories
+  if (companyData.categories && companyData.categories.length > 0) {
+    const serviceRecords = companyData.categories.map(catId => ({
+      company_id: companyRecord.id,
+      category_id: catId
+    }));
+
+    const { error: servicesError } = await supabase
+      .from('company_services')
+      .insert(serviceRecords);
+
+    if (servicesError) {
+      console.error('Error inserting company services:', servicesError);
+      // We don't throw here to avoid failing registration if only services fail, 
+      // but ideally this should be a transaction. Supabase doesn't support easy transactions in JS yet.
+    }
+  }
 
   return { authData, companyRecord };
 }
