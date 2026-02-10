@@ -30,6 +30,7 @@ export async function renderNavbar(container, options = {}) {
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
+        ${!options.hideLinks ? `
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
             <a class="nav-link text-white fw-bold" href="/index.html" data-i18n="nav.home">${t('nav.home')}</a>
@@ -41,6 +42,7 @@ export async function renderNavbar(container, options = {}) {
             <a class="nav-link text-white fw-bold" href="/about.html" data-i18n="nav.about">${t('nav.about')}</a>
           </li>
         </ul>
+        ` : '<ul class="navbar-nav me-auto"></ul>'}
 
         
         <ul class="navbar-nav align-items-lg-center">

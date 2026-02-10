@@ -9,7 +9,7 @@ import { supabase } from '../services/supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   await initI18n();
-  await renderNavbar(document.getElementById('navbar-container'), { forceGuest: true });
+  await renderNavbar(document.getElementById('navbar-container'), { forceGuest: true, hideLinks: true });
 
   const form = document.getElementById('resetPasswordForm');
   const submitBtn = document.getElementById('submitBtn');
@@ -161,5 +161,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = redirectUrl;
       }, { once: true });
     }
+  }
+  // Force logout if user tries to leave via Logo
+  const brandLink = document.querySelector('.navbar-brand');
+  if (brandLink) {
+    brandLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await supabase.auth.signOut();
+      window.location.href = '/index.html';
+    });
   }
 });
