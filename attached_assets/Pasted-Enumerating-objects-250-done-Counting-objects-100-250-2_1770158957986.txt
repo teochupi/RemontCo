@@ -1,0 +1,43 @@
+Enumerating objects: 250, done.
+Counting objects: 100% (250/250), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (216/216), done.
+Writing objects: 100% (219/219), 7.04 MiB | 6.54 MiB/s, done.
+Total 219 (delta 148), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (148/148), completed with 21 local objects.
+remote: error: GH013: Repository rule violations found for refs/heads/main.
+remote: 
+remote: - GITHUB PUSH PROTECTION
+remote:   —————————————————————————————————————————
+remote:     Resolve the following violations before pushing again
+remote: 
+remote:     - Push cannot contain secrets
+remote: 
+remote:     
+remote:      (?) Learn how to resolve a blocked push
+remote:      https://docs.github.com/code-security/secret-scanning/working-with-secret-scanning-and-push-protection/working-with-push-protection-from-the-command-line#resolving-a-blocked-push
+remote:     
+remote:      (?) This repository does not have Secret Scanning enabled, but is eligible. Enable Secret Scanning to view and manage detected secrets.
+remote:      Visit the repository settings page, https://github.com/teochupi/RemontCo/settings/security_analysis
+remote:     
+remote:     
+remote:       —— Sendinblue API Key ————————————————————————————————
+remote:        locations:
+remote:          - commit: 66fa6670a8026cf127478c407175b9faa27e9b96
+remote:            path: .replit:41
+remote:          - commit: de4883915b3797fdcda038be5f44ac42501cdaf7
+remote:            path: .replit:45
+remote:          - commit: f328c450d98d237666055e77c93254bc9bfe9ab3
+remote:            path: attached_assets/Brevo_API_key_RemontCo_1770148679448.txt:1
+remote:          - commit: 2bd2fbd623c05c423e9bca078540c80a5fc14fc2
+remote:            path: attached_assets/Pasted-import-jsr-supabase-functions-js-edge-runtime-d-ts-impo_1770149614967.txt:4
+remote:     
+remote:        (?) To push, remove secret from commit(s) or follow this URL to allow the secret.
+remote:        https://github.com/teochupi/RemontCo/security/secret-scanning/unblock-secret/39B8EOZrNEtQLH93tlYSLM7G3zB
+remote:     
+remote: 
+remote: 
+To https://github.com/teochupi/RemontCo
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/teochupi/RemontCo'
+~/workspace$ 

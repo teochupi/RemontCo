@@ -1,0 +1,27 @@
+{
+  "name": "remontco",
+  "version": "1.0.0",
+  "description": "RemontCo - Professional B2C platform connecting consumers with verified construction & property service companies",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "construction",
+    "renovation",
+    "marketplace",
+    "b2c",
+    "services"
+  ],
+  "author": "RemontCo Team",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.3",
+    "bootstrap": "^5.3.2"
+  },
+  "devDependencies": {
+    "vite": "^6.2.1"
+  }
+}
