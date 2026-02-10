@@ -53,7 +53,7 @@ export async function renderNavbar(container, options = {}) {
             </a>
           </li>
           
-          ${!authenticated ? `
+          ${!options.hideAuth ? (!authenticated ? `
             <!-- Not Authenticated -->
             <li class="nav-item">
               <a class="nav-link text-white fw-bold d-flex align-items-center gap-1" href="#" id="demoBtn">
@@ -81,7 +81,7 @@ export async function renderNavbar(container, options = {}) {
                 <li><a class="dropdown-item py-2 text-danger" href="#" id="logoutBtn" data-i18n="nav.logout"><i class="bi bi-box-arrow-right me-2"></i> ${t('nav.logout')}</a></li>
               </ul>
             </li>
-          `}
+          `) : ''}
         </ul>
       </div>
     </div>
