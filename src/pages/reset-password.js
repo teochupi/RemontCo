@@ -9,7 +9,7 @@ import { supabase } from '../services/supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   await initI18n();
-  await renderNavbar(document.getElementById('navbar-container'));
+  await renderNavbar(document.getElementById('navbar-container'), { forceGuest: true });
 
   const form = document.getElementById('resetPasswordForm');
   const submitBtn = document.getElementById('submitBtn');

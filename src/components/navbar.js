@@ -12,8 +12,9 @@ import { showError } from '../utils/toast.js';
  * Render navigation bar
  * @param {HTMLElement} container - Container to render navbar into
  */
-export async function renderNavbar(container) {
-  const authenticated = await isAuthenticated();
+export async function renderNavbar(container, options = {}) {
+  const isForceGuest = options.forceGuest || false;
+  const authenticated = isForceGuest ? false : await isAuthenticated();
   const user = authenticated ? await getCurrentUser() : null;
 
   const currentLang = getCurrentLanguage();
