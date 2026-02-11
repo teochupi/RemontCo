@@ -426,6 +426,8 @@
     "back": "Back",
     "next": "Next",
     "submit": "Submit",
+    "send": "Send",
+    "sending": "Sending...",
     "close": "Close",
     "no_results": "No results found",
     "currency_eur": "EUR",
@@ -484,6 +486,7 @@
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
-    "message": "Message"
+    "message": "Message",
+    "message_placeholder": "Describe your project..."
   }
 }

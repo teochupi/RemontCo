@@ -422,6 +422,8 @@
     "back": "Назад",
     "next": "Напред",
     "submit": "Изпрати",
+    "send": "Изпрати",
+    "sending": "Изпращане...",
     "close": "Затвори",
     "currency_eur": "EUR",
     "not_specified": "Не е посочен",
@@ -480,6 +482,7 @@
     "name": "Име",
     "email": "Имейл",
     "phone": "Телефон",
-    "message": "Съобщение"
+    "message": "Съобщение",
+    "message_placeholder": "Опишете вашия проект..."
   }
 }
