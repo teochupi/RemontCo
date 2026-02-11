@@ -42,7 +42,7 @@ async function loadPendingJobs() {
         // Try fetching without profiles first to see if that's the issue
         const { data, error } = await supabase
             .from('jobs')
-            .select('*, profiles(username, first_name, last_name, email)')
+            .select('*, consumer:profiles!consumer_id(username, first_name, last_name, email)')
             .eq('status', 'pending')
             .order('created_at', { ascending: false });
 
@@ -107,9 +107,9 @@ function renderJobList(data) {
                             </div>
                             <h5 class="fw-bold mb-1">${job.title}</h5>
                             <p class="text-muted small mb-3">
-                                <i class="bi bi-person me-1"></i> ${job.profiles?.username || (job.profiles?.first_name ? `${job.profiles.first_name} ${job.profiles.last_name || ''}` : null) || t('admin.consumer')} 
+                                <i class="bi bi-person me-1"></i> ${job.consumer?.username || (job.consumer?.first_name ? `${job.consumer.first_name} ${job.consumer.last_name || ''}` : null) || t('admin.consumer')} 
                                 <span class="mx-2 text-silver">|</span> 
-                                <i class="bi bi-envelope me-1"></i> ${job.profiles?.email || 'N/A'}
+                                <i class="bi bi-envelope me-1"></i> ${job.consumer?.email || 'N/A'}
                             </p>
                             <p class="mb-2 text-dark opacity-75 fs-6">${job.description}</p>
                             <div class="fw-bold text-primary"><i class="bi bi-wallet2 me-1"></i> ${job.budget_max ? job.budget_max + ' EUR' : t('common.negotiable')}</div>
