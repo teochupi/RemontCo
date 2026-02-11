@@ -1,28 +1,7 @@
 # RemontCo - Trusted Construction Services Marketplace
 <!-- Updated: 2026-02-11 -->
 
-## 🆕 Recent Updates (2026-02-11)
 
-### 1. Direct Company Contact System
-Implemented a seamless communication channel between logged-in consumers and companies:
-- **Contact Modal**: Users can now send inquiries directly from the company profile page without leaving the platform.
-- **Smart "Hire" Button**: 
-  - *Guest Users*: Redirects to Registration.
-  - *Logged-in Users*: Opens the Contact Form modal.
-  - *Demo Users*: Preserves demo limitations.
-- **Real-time Feedback**: Form includes validation, loading states ("Sending..."), and success confirmation.
-
-### 2. Secure Email Infrastructure
-- **New Edge Function (`send-company-inquiry`)**: 
-  - Handles secure server-side email dispatch via Brevo API.
-  - Protects company email addresses (not exposed to frontend).
-  - Validates user input and session on the server.
-- **Brevo Integration**: Automated transactional emails delivered instantly to companies.
-
-### 3. UI/UX Improvements
-- **Dynamic Localization**: Full Bulgarian (BG) and English (EN) support for the new forms.
-- **Smart Text Truncation**: Company descriptions now use CSS-based line clamping for a cleaner card layout.
-- **Responsive Design**: Contact modal is fully responsive and mobile-friendly.
 
 ## 🏗️ About RemontCo
 
@@ -102,7 +81,9 @@ This creates a fair, legal, and professional marketplace that benefits:
 - ✅ Receive competitive quotes from multiple companies
 - ✅ Accept, reject, or negotiate offers
 - ✅ Manage active projects in dashboard
-- ✅ View company profiles and contact information
+- ✅ View company profiles with smart text truncation
+- ✅ **Direct Company Contact**: Send inquiries via responsive modal
+- ✅ **Smart "Hire" Button**: Intelligent routing for guests (register), users (contact), and demo accounts
 
 #### For Companies
 - ✅ Register with BULSTAT/EIK business verification
@@ -156,6 +137,7 @@ The platform uses custom Bootstrap modals for improved user experience:
 | **Demo Selection Modal** | Choose demo account type |
 | **Quote Modal** | Submit offers with price options |
 | **Job Details Modal** | View full job information |
+| **Contact Modal** | Direct company inquiries (Responsive & Localized) |
 | **Password Change Modal** | Change password from profile |
 
 ### Toast Notification System
@@ -210,7 +192,8 @@ The platform uses custom Bootstrap modals for improved user experience:
 ### Technical Implementation
 - **Asynchronous Processing**: Edge Functions triggered by Database Webhooks
 - **Multilingual Support**: Emails match user's preferred language (BG/EN)
-- **Brevo Integration**: Professional email delivery with tracking
+- **Secure Infrastructure**: `send-company-inquiry` Edge Function protects company emails by handling delivery server-side
+- **Brevo Integration**: Professional automated transactional emails
 - **Null Price Handling**: Displays "По договаряне" for negotiable prices
 
 ---
