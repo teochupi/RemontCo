@@ -23,8 +23,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Set User Info
         const usernameEl = document.getElementById('username');
         if (usernameEl) {
-            const hasName = userProfile.first_name && userProfile.last_name;
-            usernameEl.textContent = hasName ? `${userProfile.first_name} ${userProfile.last_name}` : (userProfile.username || 'User');
+            const firstName = (userProfile.first_name || '').trim();
+            const lastName = (userProfile.last_name || '').trim();
+            const fullName = `${firstName} ${lastName}`.trim();
+            usernameEl.textContent = fullName || userProfile.username || t('nav.user');
         }
 
         // Fill Profile Form
@@ -696,12 +698,13 @@ function setupEventListeners(userProfile, isDemo = false) {
                 if (error) throw error;
 
                 showSuccess(t('messages.profile_updated'));
-                const hasFullName = updateData.first_name && updateData.last_name;
+                const firstName = updateData.first_name || '';
+                const lastName = updateData.last_name || '';
+                const fullName = `${firstName} ${lastName}`.trim();
+
                 const usernameEl = document.getElementById('username');
                 if (usernameEl) {
-                    usernameEl.textContent = hasFullName
-                        ? `${updateData.first_name} ${updateData.last_name}`
-                        : (userProfile.username || 'User');
+                    usernameEl.textContent = fullName || userProfile.username || t('nav.user');
                 }
             } catch (err) {
                 showError(t('messages.generic_error'));
