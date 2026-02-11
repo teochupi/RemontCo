@@ -23,7 +23,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Set User Info
         const usernameEl = document.getElementById('username');
         if (usernameEl) {
-            usernameEl.textContent = userProfile.username || (userProfile.first_name ? `${userProfile.first_name} ${userProfile.last_name}` : 'User');
+            const hasName = userProfile.first_name && userProfile.last_name;
+            usernameEl.textContent = hasName ? `${userProfile.first_name} ${userProfile.last_name}` : (userProfile.username || 'User');
         }
 
         // Fill Profile Form
@@ -47,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             setupDemoMode();
         } else {
             loadUserJobs(userProfile.id);
-            setupEventListeners(userProfile.id);
+            setupEventListeners(userProfile);
         }
 
         // 4. Handle initial hash for navigation
@@ -89,7 +90,7 @@ async function setupDemoMode() {
     loadRandomCompanies();
 
     // Setup events with isDemo=true
-    setupEventListeners(null, true);
+    setupEventListeners({ id: 'demo-user', username: 'Demo User' }, true);
 }
 
 async function loadRandomJobs() {
@@ -585,7 +586,8 @@ async function extendJob(jobId) {
     }
 }
 
-function setupEventListeners(userId, isDemo = false) {
+function setupEventListeners(userProfile, isDemo = false) {
+    const userId = userProfile?.id;
     // Handle view/edit button clicks
     document.addEventListener('click', async (e) => {
         const viewBtn = e.target.closest('.view-job-btn');
@@ -679,9 +681,9 @@ function setupEventListeners(userId, isDemo = false) {
             btn.disabled = true;
 
             const updateData = {
-                first_name: document.getElementById('profile-first-name').value,
-                last_name: document.getElementById('profile-last-name').value,
-                phone: document.getElementById('profile-phone').value,
+                first_name: document.getElementById('profile-first-name').value.trim(),
+                last_name: document.getElementById('profile-last-name').value.trim(),
+                phone: document.getElementById('profile-phone').value.trim(),
                 updated_at: new Date().toISOString()
             };
 
@@ -694,7 +696,13 @@ function setupEventListeners(userId, isDemo = false) {
                 if (error) throw error;
 
                 showSuccess(t('messages.profile_updated'));
-                document.getElementById('username').textContent = `${updateData.first_name} ${updateData.last_name}`;
+                const hasFullName = updateData.first_name && updateData.last_name;
+                const usernameEl = document.getElementById('username');
+                if (usernameEl) {
+                    usernameEl.textContent = hasFullName
+                        ? `${updateData.first_name} ${updateData.last_name}`
+                        : (userProfile.username || 'User');
+                }
             } catch (err) {
                 showError(t('messages.generic_error'));
             } finally {
