@@ -8,6 +8,7 @@ import { renderFooter } from '../components/footer.js';
 import { supabase } from '../services/supabase.js';
 
 let allCompanies = [];
+let allCategories = [];
 
 const cityMapping = {
   'bg': {
@@ -55,6 +56,7 @@ async function loadCategories() {
   const currentLang = localStorage.getItem('remontco_language') || 'bg';
 
   if (categories) {
+    allCategories = categories;
     categories.forEach(cat => {
       const option = document.createElement('option');
       option.value = cat.id;
@@ -81,7 +83,7 @@ async function loadCompanies() {
         .single();
       isDemo = profile?.role === 'demo' || user.email === 'demo@remont.co' || user.email === 'company-demo@remont.co';
     }
-    
+
     let query = supabase
       .from('companies')
       .select(`
@@ -89,14 +91,14 @@ async function loadCompanies() {
         company_services(category_id)
       `)
       .order('created_at', { ascending: false });
-    
+
     if (isLoggedIn && !isDemo) {
       query = query.eq('is_verified', true).neq('status', 'rejected').eq('is_demo', false);
     } else {
       // Anonymous users and demo users see only demo companies (verified and approved)
       query = query.eq('is_verified', true).eq('status', 'approved').eq('is_demo', true);
     }
-    
+
     const { data: companies, error } = await query;
 
     if (error) throw error;
@@ -158,18 +160,18 @@ function displayCompanies(companies) {
         <div class="card-body">
           <div class="d-flex align-items-start justify-content-between mb-3">
             <h5 class="card-title mb-0 fw-bold">${company.name}</h5>
-            ${company.is_verified 
-              ? `<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">
-                  <i class="bi bi-patch-check-fill me-1"></i>${t('ads.verified_badge')}</span>` 
-              : `<span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3">
+            ${company.is_verified
+        ? `<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">
+                  <i class="bi bi-patch-check-fill me-1"></i>${t('ads.verified_badge')}</span>`
+        : `<span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3">
                   <i class="bi bi-hourglass-split me-1"></i>${t('ads.pending_badge')}</span>`}
           </div>
           <p class="text-muted small mb-2">
             <i class="bi bi-geo-alt me-1 text-primary"></i> ${getLocalizedCity(company.city) || 'N/A'}
           </p>
-          <p class="text-muted small mb-3">
-            <i class="bi bi-building me-1 text-primary"></i> EIK: ${company.eik}
-          </p>
+          <div class="mb-3">
+            ${renderServicesBadges(company.company_services)}
+          </div>
           ${(() => {
         let description = company.description;
         if (!description && company.name.includes('СофтУни')) {
@@ -179,8 +181,8 @@ function displayCompanies(companies) {
             : 'Leader in technology education and professional training.';
         }
         return description
-          ? `<p class="card-text text-secondary small">${description.substring(0, 100)}...</p>`
-          : '<p class="text-muted small fst-italic">Няма въведено описание.</p>';
+          ? `<p class="card-text text-secondary small line-clamp-3 mb-3" style="min-height: 4.5em;">${description}</p>`
+          : '<p class="text-muted small fst-italic mb-3">Няма въведено описание.</p>';
       })()}
         </div>
         <div class="card-footer bg-white border-0 pt-0 pb-4 px-4">
@@ -249,4 +251,23 @@ function setupFilters() {
   searchInput.addEventListener('input', applyFilters);
   categoryFilter.addEventListener('change', applyFilters);
   cityFilter.addEventListener('change', applyFilters);
+}
+
+/**
+ * Render service badges for a company
+ * @param {Array} services - Array of company services
+ * @returns {string} HTML string of badges
+ */
+function renderServicesBadges(services) {
+  if (!services || services.length === 0) return '';
+
+  const currentLang = localStorage.getItem('remontco_language') || 'bg';
+
+  return services.map(s => {
+    // Check if we have the category loaded
+    const cat = allCategories.find(c => c.id === s.category_id);
+    if (!cat) return '';
+    const name = currentLang === 'bg' ? cat.name_bg : cat.name_en;
+    return `<span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill me-1 mb-1 fw-normal">${name}</span>`;
+  }).join('');
 }
