@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (companyId) {
     loadCompanyData(companyId);
+    setupContactForm();
   } else {
     window.location.href = '/companies.html';
   }
@@ -232,4 +233,149 @@ async function loadPortfolio(companyId, companyName) {
     console.error('Error loading portfolio:', err);
     portfolioContainer.innerHTML = '<p class="text-muted text-center">Error loading portfolio items.</p>';
   }
+}
+
+async function setupContactForm() {
+  // Check User Status and update UI
+  const { data: { user } } = await supabase.auth.getUser();
+  const hireBtn = document.querySelector('a[href="/auth/register.html"][data-i18n="company.hire_button"]');
+  const registerCta = document.querySelector('[data-i18n="company.register_cta"]');
+  const contactForm = document.getElementById('contactForm');
+
+  if (user && hireBtn) {
+    // Check if it's a demo user (optional: treat demo users as anonymous or logged in? User said: "If demo client clicked ... logic is absolutely correct")
+    // User SAID: "If registered user steps ... platform takes him to register screen which is wrong."
+    // So for registered users (including demo?), show the modal.
+    // Wait, user said: "When logged in demo_client ... button takes to register page. Here for demo_client logic is absolutely correct !!!"
+    // AND "When real registered user ... platform takes to register screen which is wrong."
+    // So:
+    // IF Demo User -> Keep Link to Register (as per user request "Here for demo_client... logic is absolutely correct")
+    // IF Real User -> Open Modal
+
+    const isDemo = user.email === 'demo@remont.co' || user.email === 'company-demo@remont.co';
+
+    if (!isDemo) {
+      // It is a real user
+      hireBtn.removeAttribute('href');
+      hireBtn.style.cursor = 'pointer';
+      hireBtn.dataset.i18n = 'company.contact_button'; // "Send Message"
+      hireBtn.textContent = t('company.contact_button') || 'Изпрати запитване';
+
+      // Hide the "register" text
+      if (registerCta) {
+        registerCta.style.display = 'none';
+      }
+
+      // Add click listener to open modal
+      hireBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        // Pre-fill form
+        const contactName = document.getElementById('contactName');
+        const contactEmail = document.getElementById('contactEmail');
+
+        // We can fetch profile to fill name if needed, but email is in user object
+        contactEmail.value = user.email;
+
+        // Fetch profile for name
+        supabase.from('profiles').select('first_name, last_name, phone').eq('id', user.id).single()
+          .then(({ data: profile }) => {
+            if (profile) {
+              contactName.value = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || user.username || '';
+              document.getElementById('contactPhone').value = profile.phone || '';
+            }
+          });
+
+        const modal = new bootstrap.Modal(document.getElementById('contactModal'));
+        modal.show();
+      });
+    }
+  }
+
+  if (contactForm) {
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const btn = contactForm.querySelector('button[type="submit"]');
+      const spinner = document.getElementById('contactBtnSpinner');
+      const btnText = document.getElementById('contactBtnText');
+
+      btn.disabled = true;
+      spinner.classList.remove('d-none');
+      btnText.textContent = t('common.sending') || 'Изпращане...';
+
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const companyId = urlParams.get('id');
+
+        const payload = {
+          company_id: companyId,
+          sender_name: document.getElementById('contactName').value,
+          sender_email: document.getElementById('contactEmail').value,
+          sender_phone: document.getElementById('contactPhone').value,
+          message: document.getElementById('contactMessage').value
+        };
+
+        const { data, error } = await supabase.functions.invoke('send-company-inquiry', {
+          body: payload
+        });
+
+        if (error) throw error;
+
+        // Hide modal
+        const modalEl = document.getElementById('contactModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+
+        // Show success
+        // We can use a simple alert or a nice toast/modal. User asked for "Modern modal 'Sent successfully'". 
+        // We can promote a simple success alert for now or reuse the success modal from register.js if we duplicate it, 
+        // OR just use a standard alert for step 1 and improve later. 
+        // Let's create a dynamic success modal or just use alert for speed then refine.
+        // Actually, let's use a nice Alert since we have `showAlert` in other files, but here we can just alert or use toast.
+        // The user specifically asked: "User sees message 'Sent successfully' in a modern modal".
+        // I will use `showSuccessModal` logic similar to register.js but I need to inject it or create it.
+        // Let's just create a quick Success Modal dynamically.
+
+        showSuccessMessage();
+        contactForm.reset();
+
+      } catch (err) {
+        console.error('Error sending inquiry:', err);
+        showError(t('messages.error_sending') || 'Грешка при изпращане. Моля, опитайте по-късно.');
+      } finally {
+        btn.disabled = false;
+        spinner.classList.add('d-none');
+        btnText.textContent = t('common.send') || 'Изпрати';
+      }
+    });
+  }
+}
+
+function showSuccessMessage() {
+  // Check if success modal exists, if not create it
+  let modalEl = document.getElementById('inquirySuccessModal');
+  if (!modalEl) {
+    const modalHtml = `
+      <div class="modal fade" id="inquirySuccessModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0 shadow-lg rounded-4 text-center p-4">
+            <div class="modal-body">
+              <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="bi bi-check-lg fs-2"></i>
+              </div>
+              <h4 class="fw-bold mb-2 text-success" data-i18n="messages.success">Успешно!</h4>
+              <p class="text-muted mb-4" data-i18n="messages.inquiry_sent_desc">Вашето запитване беше изпратено успешно до фирмата.</p>
+              <button type="button" class="btn btn-success rounded-pill px-4" data-bs-dismiss="modal">Добре</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    modalEl = document.getElementById('inquirySuccessModal');
+  }
+
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
 }
