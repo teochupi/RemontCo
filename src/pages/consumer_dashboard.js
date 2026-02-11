@@ -35,6 +35,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (lastNameInput) lastNameInput.value = userProfile.last_name || '';
         if (phoneInput) phoneInput.value = userProfile.phone || '';
 
+        // Setup Avatar
+        updateAvatarUI(userProfile.avatar_url);
+        setupAvatarUpload(userProfile.id, userProfile.role === 'demo');
+
         // 3. Load UI Data
         loadCategories();
         populateCityDropdowns();
@@ -1187,5 +1191,169 @@ async function openOffersModal(job) {
     } catch (err) {
         console.error('Error loading offers:', err);
         container.innerHTML = `<div class="alert alert-danger">${t('common.error')}</div>`;
+    }
+}
+
+/**
+ * Update UI with user avatar
+ * @param {string|null} avatarUrl
+ */
+function updateAvatarUI(avatarUrl) {
+    const sidebarAvatarContainer = document.getElementById('sidebar-avatar-container');
+    const sidebarImg = document.getElementById('sidebar-avatar-img');
+    const sidebarIcon = document.getElementById('sidebar-avatar-icon');
+
+    const profileAvatarContainer = document.getElementById('profile-avatar-container');
+    const profileImg = document.getElementById('profile-avatar-img');
+    const profileIcon = document.getElementById('profile-avatar-icon');
+
+    if (avatarUrl) {
+        // Update Sidebar
+        if (sidebarImg) {
+            sidebarImg.src = avatarUrl;
+            sidebarImg.classList.remove('d-none');
+        }
+        if (sidebarIcon) sidebarIcon.classList.add('d-none');
+
+        // Update Profile
+        if (profileImg) {
+            profileImg.src = avatarUrl;
+            profileImg.classList.remove('d-none');
+        }
+        if (profileIcon) {
+            profileIcon.classList.add('d-none');
+            // Ensure container has white bg to show image clearly
+            if (profileAvatarContainer) profileAvatarContainer.style.backgroundColor = '#fff';
+        }
+    } else {
+        // Reset to default
+        if (sidebarImg) sidebarImg.classList.add('d-none');
+        if (sidebarIcon) sidebarIcon.classList.remove('d-none');
+
+        if (profileImg) profileImg.classList.add('d-none');
+        if (profileIcon) {
+            profileIcon.classList.remove('d-none');
+            if (profileAvatarContainer) profileAvatarContainer.style.backgroundColor = '#e9ecef';
+        }
+    }
+}
+
+/**
+ * Setup avatar upload listeners
+ * @param {string} userId
+ * @param {boolean} isDemo
+ */
+function setupAvatarUpload(userId, isDemo) {
+    const profileAvatarContainer = document.getElementById('profile-avatar-container');
+    const sidebarAvatarContainer = document.getElementById('sidebar-avatar-container');
+    const fileInput = document.getElementById('avatar-input');
+
+    if (isDemo) {
+        // For demo, just show alert on click
+        const showDemoAlert = () => showWarning(t('demo.demo_alert'));
+        if (profileAvatarContainer) profileAvatarContainer.addEventListener('click', showDemoAlert);
+        // Sidebar click in demo mode shouldn't do anything or just show alert
+        if (sidebarAvatarContainer) sidebarAvatarContainer.style.cursor = 'default';
+        return;
+    }
+
+    // Trigger file input on container click
+    if (profileAvatarContainer) {
+        profileAvatarContainer.addEventListener('click', () => {
+            if (fileInput) fileInput.click();
+        });
+    }
+
+    // Also allow clicking sidebar to edit
+    if (sidebarAvatarContainer) {
+        sidebarAvatarContainer.style.cursor = 'pointer';
+        sidebarAvatarContainer.addEventListener('click', () => {
+            // Switch to profile tab first if not already there, OR just open file dialog
+            // Let's just open file dialog for convenience, but maybe better to go to profile tab?
+            // User wants to edit avatar. Let's trigger upload.
+            if (fileInput) fileInput.click();
+        });
+    }
+
+    // Handle file selection
+    if (fileInput) {
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showError(t('messages.invalid_image') || 'Please upload an image file.');
+                return;
+            }
+
+            // Validate file size (max 5MB to be safe, high res avatars)
+            if (file.size > 5 * 1024 * 1024) {
+                showError(t('messages.file_too_large') || 'File size must be less than 5MB.');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const overlay = profileAvatarContainer.querySelector('.position-absolute');
+                if (overlay) {
+                    const originalIcon = overlay.innerHTML;
+                    overlay.innerHTML = '<div class="spinner-border text-white" role="status"></div>';
+                    overlay.classList.remove('opacity-0', 'hover-opacity-100');
+                    overlay.classList.add('opacity-100');
+                }
+
+                // 1. Upload to Supabase Storage
+                // Using 'avatars' bucket. If it doesn't exist, this will fail.
+                // We'll try to handle that.
+                const fileExt = file.name.split('.').pop();
+                const filePath = `consumer_avatars/${userId}/${Date.now()}.${fileExt}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('avatars')
+                    .upload(filePath, file, { upsert: true });
+
+                if (uploadError) {
+                    // Check if bucket doesn't exist
+                    if (uploadError.message.includes('bucket not found') || uploadError.message.includes('Bucket not found')) {
+                        throw new Error('Storage bucket "avatars" not configured. Please contact admin.');
+                    }
+                    throw uploadError;
+                }
+
+                // 2. Get Public URL
+                const { data: { publicUrl } } = supabase.storage
+                    .from('avatars')
+                    .getPublicUrl(filePath);
+
+                // 3. Update Profile
+                const { error: updateError } = await supabase
+                    .from('profiles')
+                    .update({
+                        avatar_url: publicUrl,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', userId);
+
+                if (updateError) throw updateError;
+
+                // 4. Update UI
+                updateAvatarUI(publicUrl);
+                showSuccess(t('messages.profile_updated'));
+
+            } catch (err) {
+                console.error('Avatar upload error:', err);
+                showError(t('messages.upload_failed') || err.message);
+            } finally {
+                // Reset overlay
+                const overlay = profileAvatarContainer?.querySelector('.position-absolute');
+                if (overlay) {
+                    overlay.innerHTML = '<i class="bi bi-camera-fill text-white fs-2"></i>';
+                    overlay.classList.add('opacity-0', 'hover-opacity-100');
+                    overlay.classList.remove('opacity-100');
+                }
+                fileInput.value = ''; // Reset input to allow re-uploading same file
+            }
+        });
     }
 }

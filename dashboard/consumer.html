@@ -26,8 +26,13 @@
         <div class="card shadow-sm border-0 mb-4 sticky-top" style="top: 100px;">
           <div class="card-body">
             <div class="text-center mb-3">
-              <div class="avatar-circle mx-auto mb-2">
-                <i class="bi bi-person-circle fs-1 text-primary"></i>
+              <div class="avatar-circle mx-auto mb-2 overflow-hidden rounded-circle border shadow-sm position-relative"
+                style="width: 80px; height: 80px;" id="sidebar-avatar-container">
+                <img id="sidebar-avatar-img" src="" alt="Avatar" class="w-100 h-100 object-fit-cover d-none">
+                <div id="sidebar-avatar-icon"
+                  class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-primary">
+                  <i class="bi bi-person-circle fs-1"></i>
+                </div>
               </div>
               <h5 id="username" class="mb-0">Loading...</h5>
               <p class="text-muted small" data-i18n="roles.consumer">Потребител</p>
@@ -148,6 +153,25 @@
               <div class="card-body p-4">
                 <form id="profile-form" class="mb-4">
                   <div class="row g-3">
+                    <div class="col-12 text-center mb-3">
+                      <div class="position-relative d-inline-block">
+                        <div
+                          class="avatar-circle-lg mx-auto overflow-hidden rounded-circle border border-3 border-light shadow-sm"
+                          style="width: 120px; height: 120px; background-color: #e9ecef; cursor: pointer;"
+                          id="profile-avatar-container">
+                          <img id="profile-avatar-img" src="" alt="Avatar" class="w-100 h-100 object-fit-cover d-none">
+                          <div id="profile-avatar-icon"
+                            class="w-100 h-100 d-flex align-items-center justify-content-center text-secondary">
+                            <i class="bi bi-person text-secondary" style="font-size: 4rem;"></i>
+                          </div>
+                          <div
+                            class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center opacity-0 hover-opacity-100 transition-opacity rounded-circle">
+                            <i class="bi bi-camera-fill text-white fs-2"></i>
+                          </div>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0" data-i18n="auth.change_avatar">Промяна на снимка</p>
+                      </div>
+                    </div>
                     <div class="col-md-6">
                       <label class="form-label" data-i18n="auth.first_name">Име</label>
                       <input type="text" class="form-control" id="profile-first-name" required>
@@ -197,6 +221,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Hidden Avatar Upload Input -->
+  <input type="file" id="avatar-input" class="d-none" accept="image/png, image/jpeg, image/webp">
 
   <!-- Footer (will be injected) -->
   <div id="footer-container"></div>

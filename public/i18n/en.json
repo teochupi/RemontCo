@@ -159,7 +159,9 @@
     "change_password": "Change Password",
     "current_password": "Current Password",
     "save_new_password": "Save New Password",
-    "password_placeholder": "Minimum 6 characters"
+    "password_placeholder": "Minimum 6 characters",
+    "change_avatar": "Change Avatar",
+    "upload_avatar": "Upload Avatar"
   },
   "dashboard": {
     "consumer": {
@@ -480,7 +482,10 @@
     "email_sent_title": "Email Sent!",
     "inquiry_sent_desc": "Your inquiry was sent successfully to the company.",
     "error_sending": "Error sending inquiry. Please try again later.",
-    "rate_limit_error": "For security purposes, please wait a few seconds before trying again."
+    "rate_limit_error": "For security purposes, please wait a few seconds before trying again.",
+    "invalid_image": "Please upload a valid image.",
+    "file_too_large": "File size must be less than 5MB.",
+    "upload_failed": "Avatar upload failed."
   },
   "form": {
     "name": "Name",

@@ -400,6 +400,13 @@ Create webhooks in Supabase Dashboard:
    - Username: Your Brevo email
    - Password: Your Brevo SMTP key
 
+#### Storage Setup
+1. Create a new public bucket named `avatars`.
+2. Add the following RLS policies:
+   - **Public Read Access**: `SELECT` for role `anon` (bucket_id = 'avatars')
+   - **Authenticated Uploads**: `INSERT` for role `authenticated` (bucket_id = 'avatars')
+   - **User Management**: `UPDATE`, `DELETE` for users to manage their own files (bucket_id = 'avatars' AND auth.uid() = owner)
+
 #### Site URL Configuration
 1. Go to Authentication → URL Configuration
 2. Set Site URL to your production domain (e.g., `https://remontco.vercel.app`)
