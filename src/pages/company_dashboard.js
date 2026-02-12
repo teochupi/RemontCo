@@ -875,13 +875,13 @@ async function toggleFavorite(jobId, isDemo = false) {
 
         if (existing) {
             await supabase.from('favorites').delete().eq('id', existing.id);
-            showSuccess(t('messages.removed_from_watchlist'));
+            showSuccess(t('messages.removed_from_watchlist'), 1500);
         } else {
             await supabase.from('favorites').insert({
                 company_id: currentCompany.id,
                 job_id: jobId
             });
-            showSuccess(t('messages.added_to_watchlist'));
+            showSuccess(t('messages.added_to_watchlist'), 1500);
         }
 
         // Refresh views
