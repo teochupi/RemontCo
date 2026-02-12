@@ -170,6 +170,7 @@
       "create_ad": "Create Ad",
       "offers": "Received Offers",
       "active_projects": "Active Projects",
+      "recommended_companies": "Recommended Companies",
       "account": "Account"
     },
     "company": {
@@ -365,7 +366,9 @@
     "upload_hint": "Upload image (JPG, PNG). Max 5MB.",
     "add_project_btn": "Add Project",
     "eik_readonly_hint": "UIC cannot be changed after registration.",
-    "delete_project": "Delete"
+    "delete_project": "Delete",
+    "project_title_placeholder": "e.g. Bathroom Renovation - Mladost",
+    "project_desc_placeholder": "Short description of the work done..."
   },
   "offers": {
     "send_offer": "Send Offer",

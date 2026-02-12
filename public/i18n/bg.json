@@ -170,6 +170,7 @@
       "create_ad": "Създай Обява",
       "offers": "Получени Оферти",
       "active_projects": "Наблюдавани обяви",
+      "recommended_companies": "Препоръчани фирми",
       "account": "Акаунт"
     },
     "company": {
@@ -365,7 +366,9 @@
     "upload_hint": "Качете снимка (JPG, PNG). Макс. 5MB.",
     "add_project_btn": "Добави Проект",
     "eik_readonly_hint": "ЕИК не може да се променя след регистрация.",
-    "delete_project": "Изтрий"
+    "delete_project": "Изтрий",
+    "project_title_placeholder": "напр. Ремонт на баня - Младост",
+    "project_desc_placeholder": "Кратко описание на извършената работа..."
   },
   "ads": {
     "title": "Заглавие",
