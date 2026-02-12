@@ -67,11 +67,43 @@
         <div class="tab-content" id="v-pills-tabContent">
           <!-- My Jobs Tab -->
           <div class="tab-pane fade show active" id="v-pills-jobs" role="tabpanel">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 mb-4">
               <h2 class="h4 mb-0" data-i18n="dashboard_consumer.active_jobs">Вашите активни запитвания</h2>
-              <button class="btn btn-primary d-lg-none" onclick="document.getElementById('v-pills-post-tab').click()">
-                <i class="bi bi-plus-lg"></i>
-              </button>
+              <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-md-auto ms-auto">
+                <!-- Search Input -->
+                <div class="input-group flex-grow-1 flex-md-grow-0" style="min-width: 200px;">
+                  <span class="input-group-text bg-white border-end-0 rounded-start-pill ps-3">
+                    <i class="bi bi-search text-primary"></i>
+                  </span>
+                  <input type="text" class="form-control border-start-0 rounded-end-pill" id="search-filter"
+                    placeholder="Търсене по ключова дума..." data-i18n-placeholder="common.search_placeholder">
+                </div>
+
+                <!-- Category Filter -->
+                <div class="input-group flex-grow-1 flex-md-grow-0" style="min-width: 180px;">
+                  <span class="input-group-text bg-white border-end-0 rounded-start-pill ps-3">
+                    <i class="bi bi-tags text-primary"></i>
+                  </span>
+                  <select class="form-select border-start-0 rounded-end-pill" id="category-filter"
+                    style="cursor: pointer;">
+                    <option value="" data-i18n="company.all_categories">Всички Категории</option>
+                  </select>
+                </div>
+
+                <!-- City Filter -->
+                <div class="input-group flex-grow-1 flex-md-grow-0" style="min-width: 150px;">
+                  <span class="input-group-text bg-white border-end-0 rounded-start-pill ps-3">
+                    <i class="bi bi-geo-alt text-primary"></i>
+                  </span>
+                  <select class="form-select border-start-0 rounded-end-pill" id="city-filter" style="cursor: pointer;">
+                    <option value="" data-i18n="company.all_cities">Всички Градове</option>
+                  </select>
+                </div>
+
+                <button class="btn btn-primary d-lg-none" onclick="document.getElementById('v-pills-post-tab').click()">
+                  <i class="bi bi-plus-lg"></i>
+                </button>
+              </div>
             </div>
 
             <div id="jobs-list" class="row g-4">

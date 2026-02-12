@@ -8,6 +8,7 @@ import { showSuccess, showError, showWarning } from '../utils/toast.js';
 import { showConfirm } from '../utils/confirmModal.js';
 
 let loadedJobs = [];
+let allLoadedJobs = []; // Store all fetched jobs for filtering
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -170,8 +171,10 @@ async function loadRandomJobs() {
 
         // Assign to global variable so event listeners work
         loadedJobs = fakeJobs;
+        allLoadedJobs = fakeJobs; // Store for filtering as well
 
-        renderJobs(loadedJobs, true);
+        populateFilters(fakeJobs);
+        applyFilters();
     } catch (err) {
         console.error('Demo jobs error:', err);
     }
@@ -470,6 +473,112 @@ function populateCityDropdowns() {
     });
 }
 
+function populateFilters(jobs) {
+    const cityFilter = document.getElementById('city-filter');
+    const categoryFilter = document.getElementById('category-filter');
+
+    if (cityFilter) {
+        // Clear existing, keep "All Cities"
+        while (cityFilter.options.length > 1) cityFilter.remove(1);
+
+        const cities = [...new Set(jobs.map(j => j.city || j.location).filter(Boolean))].sort();
+        const currentLang = getCurrentLanguage();
+        const cityMapEN = {
+            'Благоевград': 'Blagoevgrad', 'Бургас': 'Burgas', 'Варна': 'Varna',
+            'Велико Търново': 'Veliko Tarnovo', 'Видин': 'Vidin', 'Враца': 'Vratsa',
+            'Габрово': 'Gabrovo', 'Добрич': 'Dobrich', 'Кърджали': 'Kardzhali',
+            'Кюстендил': 'Kyustendil', 'Ловеч': 'Lovech', 'Монтана': 'Montana',
+            'Пазарджик': 'Pazardzhik', 'Перник': 'Pernik', 'Плевен': 'Pleven',
+            'Пловдив': 'Plovdiv', 'Разград': 'Razgrad', 'Русе': 'Ruse',
+            'Силистра': 'Silistra', 'Сливен': 'Sliven', 'Смолян': 'Smolyan',
+            'София': 'Sofia', 'Стара Загора': 'Stara Zagora', 'Търговище': 'Targovishte',
+            'Хасково': 'Haskovo', 'Шумен': 'Shumen', 'Ямбол': 'Yambol'
+        };
+
+        cities.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city;
+            option.textContent = currentLang === 'en' ? (cityMapEN[city] || city) : city;
+            cityFilter.appendChild(option);
+        });
+    }
+
+    if (categoryFilter) {
+        // Clear existing, keep "All Categories"
+        while (categoryFilter.options.length > 1) categoryFilter.remove(1);
+
+        const currentLang = getCurrentLanguage();
+        const categoriesMap = new Map();
+
+        jobs.forEach(job => {
+            if (job.category) {
+                // Use ID if available, otherwise use name as ID for demo
+                const id = job.category_id || job.category.name_en;
+
+                if (!categoriesMap.has(id)) {
+                    categoriesMap.set(id, job.category);
+                }
+            }
+        });
+
+        const sortedCategories = Array.from(categoriesMap.entries()).sort((a, b) => {
+            const nameA = currentLang === 'bg' ? a[1].name_bg : a[1].name_en;
+            const nameB = currentLang === 'bg' ? b[1].name_bg : b[1].name_en;
+            return nameA.localeCompare(nameB);
+        });
+
+        sortedCategories.forEach(([id, cat]) => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = currentLang === 'bg' ? cat.name_bg : cat.name_en;
+            categoryFilter.appendChild(option);
+        });
+    }
+}
+
+function applyFilters() {
+    const cityFilter = document.getElementById('city-filter');
+    const categoryFilter = document.getElementById('category-filter');
+    const searchFilter = document.getElementById('search-filter');
+
+    // Safe retrieval of values
+    const selectedCity = cityFilter ? cityFilter.value : '';
+    const selectedCategory = categoryFilter ? categoryFilter.value : '';
+    const searchText = searchFilter ? searchFilter.value.trim().toLowerCase() : '';
+
+    let filtered = allLoadedJobs;
+
+    if (selectedCity) {
+        filtered = filtered.filter(j => (j.city === selectedCity) || (j.location === selectedCity));
+    }
+
+    if (selectedCategory) {
+        filtered = filtered.filter(j => {
+            // For real data: compare IDs
+            if (j.category_id) return j.category_id == selectedCategory;
+            // For demo data: compare names (since we used name_en as ID in populate)
+            if (j.category) return j.category.name_en == selectedCategory;
+            return false;
+        });
+    }
+
+    if (searchText) {
+        filtered = filtered.filter(j => {
+            const title = ((j.title_en || j.title) || '').toLowerCase();
+            const desc = ((j.description_en || j.description) || '').toLowerCase();
+            // Check original title/desc as fallback or primary
+            const titleOriginal = (j.title || '').toLowerCase();
+            const descOriginal = (j.description || '').toLowerCase();
+
+            return title.includes(searchText) || desc.includes(searchText) || titleOriginal.includes(searchText) || descOriginal.includes(searchText);
+        });
+    }
+
+    // Pass isDemo context implicitly if stored, but here we just rerender
+    // Note: applyFilters is primarily for the My Jobs list which uses renderJobs
+    renderJobs(filtered);
+}
+
 async function loadUserJobs(userId) {
     const jobsList = document.getElementById('jobs-list');
     if (!jobsList) return;
@@ -508,7 +617,9 @@ async function loadUserJobs(userId) {
             };
         });
 
-        renderJobs(loadedJobs, false); // false for isDemo
+        allLoadedJobs = loadedJobs;
+        populateFilters(loadedJobs);
+        applyFilters();
 
     } catch (err) {
         console.error('Error loading jobs:', err);
@@ -590,6 +701,16 @@ async function extendJob(jobId) {
 
 function setupEventListeners(userProfile, isDemo = false) {
     const userId = userProfile?.id;
+
+    // Filter Listeners
+    const cityFilter = document.getElementById('city-filter');
+    const categoryFilter = document.getElementById('category-filter');
+    const searchFilter = document.getElementById('search-filter');
+
+    if (cityFilter) cityFilter.addEventListener('change', applyFilters);
+    if (categoryFilter) categoryFilter.addEventListener('change', applyFilters);
+    if (searchFilter) searchFilter.addEventListener('input', applyFilters);
+
     // Handle view/edit button clicks
     document.addEventListener('click', async (e) => {
         const viewBtn = e.target.closest('.view-job-btn');
