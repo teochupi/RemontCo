@@ -529,16 +529,12 @@ async function loadAvailableJobs(isDemo = false) {
         allAvailableJobs = data;
         allFavIds = favIds;
 
-        populateCityFilter(data);
+        allAvailableJobs = data;
+        allFavIds = favIds;
 
-        const cityFilter = document.getElementById('city-filter');
-        const selectedCity = cityFilter?.value;
-        if (selectedCity) {
-            const filtered = data.filter(j => j.city === selectedCity);
-            renderAvailableJobs(filtered, favIds, true);
-        } else {
-            renderAvailableJobs(data, favIds);
-        }
+        populateCityFilter(data);
+        populateCategoryFilter(data);
+        applyFilters();
 
     } catch (err) {
         console.error('Error loading jobs:', err);
@@ -572,6 +568,73 @@ function populateCityFilter(jobs) {
         option.textContent = currentLang === 'en' && cityMap[city] ? cityMap[city] : city;
         filter.appendChild(option);
     });
+}
+
+function populateCategoryFilter(jobs) {
+    const filter = document.getElementById('category-filter');
+    if (!filter) return;
+
+    const currentLang = getCurrentLanguage();
+    // Map categories by ID to ensure uniqueness but keep names
+    const categoriesMap = new Map();
+
+    jobs.forEach(job => {
+        if (job.category_id && job.category) {
+            if (!categoriesMap.has(job.category_id)) {
+                categoriesMap.set(job.category_id, job.category);
+            }
+        }
+    });
+
+    // Clear existing options except first
+    while (filter.options.length > 1) filter.remove(1);
+
+    // Sort by name
+    const sortedCategories = Array.from(categoriesMap.entries()).sort((a, b) => {
+        const nameA = currentLang === 'bg' ? a[1].name_bg : a[1].name_en;
+        const nameB = currentLang === 'bg' ? b[1].name_bg : b[1].name_en;
+        return nameA.localeCompare(nameB);
+    });
+
+    sortedCategories.forEach(([id, cat]) => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = currentLang === 'bg' ? cat.name_bg : cat.name_en;
+        filter.appendChild(option);
+    });
+}
+
+function applyFilters() {
+    const cityFilter = document.getElementById('city-filter');
+    const categoryFilter = document.getElementById('category-filter');
+    const searchFilter = document.getElementById('search-filter');
+
+    if (!cityFilter || !categoryFilter || !searchFilter) return;
+
+    const selectedCity = cityFilter.value;
+    const selectedCategory = categoryFilter.value;
+    const searchText = searchFilter.value.trim().toLowerCase();
+
+    let filtered = allAvailableJobs;
+
+    if (selectedCity) {
+        filtered = filtered.filter(j => j.city === selectedCity);
+    }
+
+    if (selectedCategory) {
+        // Assuming job.category_id is present (it should be from 'select(*)')
+        filtered = filtered.filter(j => j.category_id == selectedCategory); // loose equality for string/num safety
+    }
+
+    if (searchText) {
+        filtered = filtered.filter(j => {
+            const title = (j.title || '').toLowerCase();
+            const desc = (j.description || '').toLowerCase();
+            return title.includes(searchText) || desc.includes(searchText);
+        });
+    }
+
+    renderAvailableJobs(filtered, allFavIds, (selectedCity || selectedCategory || searchText));
 }
 
 function renderAvailableJobs(data, favIds, isFiltered = false) {
@@ -910,23 +973,14 @@ function setupEventListeners(isDemo = false) {
     });
 
     const cityFilter = document.getElementById('city-filter');
-    if (cityFilter) {
-        cityFilter.addEventListener('change', () => {
-            const selectedCity = cityFilter.value;
-            const badge = document.getElementById('city-filter-badge');
-            const label = document.getElementById('city-filter-label');
+    const categoryFilter = document.getElementById('category-filter');
+    const searchFilter = document.getElementById('search-filter');
 
-            if (selectedCity) {
-                const selectedText = cityFilter.options[cityFilter.selectedIndex].text;
-                if (badge) badge.classList.remove('d-none');
-                if (label) label.textContent = selectedText;
-                const filtered = allAvailableJobs.filter(j => j.city === selectedCity);
-                renderAvailableJobs(filtered, allFavIds, true);
-            } else {
-                if (badge) badge.classList.add('d-none');
-                renderAvailableJobs(allAvailableJobs, allFavIds, false);
-            }
-        });
+    // Attach listeners
+    if (cityFilter) cityFilter.addEventListener('change', applyFilters);
+    if (categoryFilter) categoryFilter.addEventListener('change', applyFilters);
+    if (searchFilter) {
+        searchFilter.addEventListener('input', applyFilters); // Real-time search
     }
 
     const clearCityFilter = document.getElementById('clear-city-filter');

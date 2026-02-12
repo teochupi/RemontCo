@@ -439,6 +439,7 @@
     "edit": "Edit",
     "view": "View",
     "search": "Search",
+    "search_placeholder": "Search keyword...",
     "filter": "Filter",
     "loading": "Loading...",
     "error": "Error",
