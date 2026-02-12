@@ -15,7 +15,7 @@ import { showError, showSuccess } from '../utils/toast.js';
 export async function renderNavbar(container, options = {}) {
   // Check for logout message
   if (sessionStorage.getItem('logout_toast')) {
-    showSuccess(t('messages.logout_success'));
+    showSuccess(t('messages.logout_success'), 2000);
     sessionStorage.removeItem('logout_toast');
   }
 
