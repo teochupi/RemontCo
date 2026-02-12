@@ -6,7 +6,6 @@ import { initI18n, t, getCurrentLanguage } from '../utils/i18n.js';
 import { renderNavbar } from '../components/navbar.js';
 import { renderFooter } from '../components/footer.js';
 import { supabase } from '../services/supabase.js';
-
 // Initialize page
 document.addEventListener('DOMContentLoaded', async () => {
   // Initialize i18n
@@ -235,7 +234,7 @@ function createCategoryCard(category) {
     'construction': 'bi-building-fill-add',
     'moving': 'bi-truck',
     'interior-design': 'bi-palette',
-    'furniture': 'bi-chair',
+    'furniture': 'bi-lamp',
     'cleaning': 'bi-stars',
     'smart-home': 'bi-cpu-fill'
   };
@@ -244,7 +243,7 @@ function createCategoryCard(category) {
 
   wrapper.innerHTML = `
     <div class="category-card h-100 d-flex flex-column align-items-center justify-content-center">
-      <div class="category-icon-wrapper mb-3 p-3 bg-light rounded-circle text-primary">
+      <div class="category-icon-wrapper mb-3 p-3 rounded-circle icon-gradient-bg text-white">
         <i class="bi ${iconClass}" style="font-size: 2.5rem;"></i>
       </div>
       <h4 class="h6 text-center mb-0 mt-2">${categoryName}</h4>
