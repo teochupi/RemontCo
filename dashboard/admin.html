@@ -72,6 +72,48 @@
           <!-- Verify Companies Tab -->
           <div class="tab-pane fade" id="admin-companies" role="tabpanel">
             <h2 class="h4 fw-bold mb-4" data-i18n="admin.pending_companies">Верификация на фирми</h2>
+
+            <!-- Filters & Search Toolbar -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+              <div class="card-body p-3">
+                <div class="row g-3 align-items-center">
+                  <!-- Search Input -->
+                  <div class="col-md-4">
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-end-0"><i
+                          class="bi bi-search text-muted"></i></span>
+                      <input type="text" class="form-control border-start-0 bg-light" id="filter-input"
+                        data-i18n-placeholder="admin.filters.search_placeholder"
+                        placeholder="Search (Name, EIK, City)...">
+                    </div>
+                  </div>
+
+                  <!-- Status Filter -->
+                  <div class="col-md-3">
+                    <select class="form-select bg-light border-0" id="filter-status">
+                      <option value="all" data-i18n="admin.filters.all_statuses" selected>All Statuses</option>
+                      <option value="verified" data-i18n="company.verified">Verified</option>
+                      <option value="pending" data-i18n="admin.pending">Pending</option>
+                    </select>
+                  </div>
+
+                  <!-- City Filter (Dynamic) -->
+                  <div class="col-md-3">
+                    <select class="form-select bg-light border-0" id="filter-city">
+                      <option value="all" data-i18n="admin.filters.all_cities" selected>All Cities</option>
+                    </select>
+                  </div>
+
+                  <!-- Reset Button -->
+                  <div class="col-md-2 text-end">
+                    <button class="btn btn-link text-decoration-none text-muted" id="reset-filters-btn">
+                      <i class="bi bi-x-circle me-1"></i> <span data-i18n="admin.filters.reset">Reset</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Filters -->
             <div class="table-responsive bg-white rounded-4 shadow-sm p-4 border">
               <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
@@ -168,23 +210,27 @@
       <div class="modal-content border-0 shadow-lg rounded-4">
         <div class="modal-header bg-danger text-white p-4">
           <h5 class="modal-title fw-bold" id="moderationModalLabel">
-            <i class="bi bi-exclamation-triangle me-2"></i> Модериране
+            <i class="bi bi-exclamation-triangle me-2"></i> <span data-i18n="admin.moderate">Moderate</span>
           </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body p-4">
           <input type="hidden" id="moderation-id">
           <input type="hidden" id="moderation-type">
-          <label class="form-label fw-bold">Причина за връщане за редакция:</label>
+          <label class="form-label fw-bold" data-i18n="admin.moderation_reason_label">Reason for returning for
+            revision:</label>
           <textarea class="form-control" id="moderation-reason" rows="4"
-            placeholder="Опишете какво трябва да се коригира..."></textarea>
-          <div class="form-text mt-2 text-muted">
-            Потребителят ще види тази причина и ще може да направи корекции.
+            data-i18n-placeholder="admin.moderation_reason_placeholder"
+            placeholder="Describe what needs to be corrected..."></textarea>
+          <div class="form-text mt-2 text-muted" data-i18n="admin.moderation_reason_help">
+            The user will see this reason and will be able to make corrections.
           </div>
         </div>
         <div class="modal-footer border-0 p-4">
-          <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Отказ</button>
-          <button type="button" id="confirm-moderation-btn" class="btn btn-danger px-4">Върни за редакция</button>
+          <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal"
+            data-i18n="common.cancel">Cancel</button>
+          <button type="button" id="confirm-moderation-btn" class="btn btn-danger px-4"
+            data-i18n="admin.return_for_revision">Return for revision</button>
         </div>
       </div>
     </div>

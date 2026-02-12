@@ -24,7 +24,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadStats();
 
         // 4. Setup moderation modal handler
+        // 4. Setup moderation modal handler
         setupModerationHandler();
+        initFilters();
 
         // 5. Reveal page
         document.body.classList.add('ready');
@@ -242,8 +244,8 @@ async function deleteUserViaEdgeFunction(userId, displayName, displayEmail, type
 }
 
 async function loadPendingCompanies() {
-    const tableBody = document.getElementById('pending-companies-table');
-    if (!tableBody) return;
+    // Note: Render logic moved to renderCompanyList
+    // This function now fetches data and initializes filters
 
     try {
         const { data, error } = await supabase
@@ -253,62 +255,23 @@ async function loadPendingCompanies() {
 
         if (error) throw error;
 
-        if (!data || data.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted">${t('admin.no_pending_companies')}</td></tr>`;
-            return;
+        allCompanies = data || [];
+
+        // Populate City Filter
+        const cities = [...new Set(allCompanies.map(c => c.city).filter(Boolean))].sort();
+        const citySelect = document.getElementById('filter-city');
+        if (citySelect) {
+            // Keep the first option (All Cities)
+            citySelect.innerHTML = `<option value="all" data-i18n="admin.filters.all_cities">${t('admin.filters.all_cities') || 'All Cities'}</option>`;
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                citySelect.appendChild(option);
+            });
         }
 
-        tableBody.innerHTML = data.map(company => `
-            <tr class="align-middle">
-                <td>
-                    <div class="fw-bold text-dark">${company.name}</div>
-                    <small class="text-muted">${company.email}</small>
-                </td>
-                <td><code class="text-primary fw-bold">${company.eik}</code></td>
-                <td><i class="bi bi-geo-alt me-1 text-muted"></i>${company.city}</td>
-                <td>
-                    <span class="badge ${company.is_verified ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-warning-subtle text-warning border border-warning-subtle'} px-3 py-2 rounded-pill">
-                        ${company.is_verified ? t('company.verified') : t('admin.pending')}
-                    </span>
-                </td>
-                <td style="min-width: 180px;">
-                    <div class="btn-group-vertical w-100" role="group">
-                        <button class="btn btn-sm btn-success verify-btn" 
-                                data-id="${company.id}" data-status="${company.is_verified}">
-                            <i class="bi bi-check-circle me-1"></i>${t('admin.verify')}
-                        </button>
-                        <button class="btn btn-sm btn-outline-warning moderate-company-btn" 
-                                data-id="${company.id}">
-                            <i class="bi bi-pencil-square me-1"></i>${t('admin.moderate')}
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger delete-company-btn" 
-                                data-id="${company.id}" data-ownerid="${company.owner_id}" data-email="${company.email}" data-name="${company.name}">
-                            <i class="bi bi-trash me-1"></i>${t('admin.delete')}
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-
-        // Attach events
-        document.querySelectorAll('.verify-btn').forEach(btn => {
-            btn.addEventListener('click', () => updateCompanyStatus(btn.dataset.id, true));
-        });
-
-        document.querySelectorAll('.moderate-company-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.getElementById('moderation-id').value = btn.dataset.id;
-                document.getElementById('moderation-type').value = 'company';
-                document.getElementById('moderationModalLabel').innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i> ${t('admin.moderate_company')}`;
-                document.getElementById('moderation-reason').value = '';
-                const modal = new bootstrap.Modal(document.getElementById('moderationModal'));
-                modal.show();
-            });
-        });
-
-        document.querySelectorAll('.delete-company-btn').forEach(btn => {
-            btn.addEventListener('click', () => deleteUserViaEdgeFunction(btn.dataset.ownerid, btn.dataset.name, btn.dataset.email, 'company'));
-        });
+        applyCompanyFilters();
 
     } catch (err) {
         console.error('Error loading companies:', err);
@@ -435,6 +398,133 @@ async function updateCompanyStatus(id, isVerified, reason = null) {
         showError(t('messages.generic_error'));
     }
 }
+
+// Global variable to store all loaded companies for filtering
+let allCompanies = [];
+
+function initFilters() {
+    const filterStatus = document.getElementById('filter-status');
+    const filterCity = document.getElementById('filter-city');
+    const filterInput = document.getElementById('filter-input');
+    const resetBtn = document.getElementById('reset-filters-btn');
+
+    if (filterStatus) {
+        filterStatus.addEventListener('change', applyCompanyFilters);
+    }
+    if (filterCity) {
+        filterCity.addEventListener('change', applyCompanyFilters);
+    }
+    if (filterInput) {
+        filterInput.addEventListener('input', applyCompanyFilters);
+    }
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            if (filterStatus) filterStatus.value = 'all';
+            if (filterCity) filterCity.value = 'all';
+            if (filterInput) filterInput.value = '';
+            applyCompanyFilters();
+        });
+    }
+}
+
+function applyCompanyFilters() {
+    const status = document.getElementById('filter-status')?.value || 'all';
+    const city = document.getElementById('filter-city')?.value || 'all';
+    const keyword = document.getElementById('filter-input')?.value.toLowerCase().trim() || '';
+
+    const filtered = allCompanies.filter(company => {
+        // 1. Status Filter
+        let statusMatch = true;
+        if (status === 'verified') statusMatch = company.is_verified;
+        else if (status === 'pending') statusMatch = !company.is_verified;
+
+        // 2. City Filter
+        let cityMatch = true;
+        if (city !== 'all') {
+            cityMatch = company.city === city;
+        }
+
+        // 3. Keyword Filter (Name, EIK, etc.) - checks Name, Description, EIK, Email, City
+        let keywordMatch = true;
+        if (keyword) {
+            const searchable = [
+                company.name,
+                company.eik,
+                company.email,
+                company.city,
+                company.description || ''
+            ].join(' ').toLowerCase();
+            keywordMatch = searchable.includes(keyword);
+        }
+
+        return statusMatch && cityMatch && keywordMatch;
+    });
+
+    renderCompanyList(filtered);
+}
+
+function renderCompanyList(data) {
+    const tableBody = document.getElementById('pending-companies-table');
+    if (!tableBody) return;
+
+    if (!data || data.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted">${t('admin.no_results')}</td></tr>`;
+        return;
+    }
+
+    tableBody.innerHTML = data.map(company => `
+        <tr class="align-middle">
+            <td>
+                <div class="fw-bold text-dark">${company.name}</div>
+                <small class="text-muted">${company.email}</small>
+            </td>
+            <td><code class="text-primary fw-bold">${company.eik}</code></td>
+            <td><i class="bi bi-geo-alt me-1 text-muted"></i>${company.city}</td>
+            <td>
+                <span class="badge ${company.is_verified ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-warning-subtle text-warning border border-warning-subtle'} px-3 py-2 rounded-pill">
+                    ${company.is_verified ? t('company.verified') : t('admin.pending')}
+                </span>
+            </td>
+            <td style="min-width: 180px;">
+                <div class="btn-group-vertical w-100" role="group">
+                    <button class="btn btn-sm btn-success verify-btn" 
+                            data-id="${company.id}" data-status="${company.is_verified}">
+                        <i class="bi bi-check-circle me-1"></i>${t('admin.verify')}
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning moderate-company-btn" 
+                            data-id="${company.id}">
+                        <i class="bi bi-pencil-square me-1"></i>${t('admin.moderate')}
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-company-btn" 
+                            data-id="${company.id}" data-ownerid="${company.owner_id}" data-email="${company.email}" data-name="${company.name}">
+                        <i class="bi bi-trash me-1"></i>${t('admin.delete')}
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    // Re-attach events
+    document.querySelectorAll('.verify-btn').forEach(btn => {
+        btn.addEventListener('click', () => updateCompanyStatus(btn.dataset.id, true));
+    });
+
+    document.querySelectorAll('.moderate-company-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('moderation-id').value = btn.dataset.id;
+            document.getElementById('moderation-type').value = 'company';
+            document.getElementById('moderationModalLabel').innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i> ${t('admin.moderate_company')}`;
+            document.getElementById('moderation-reason').value = '';
+            const modal = new bootstrap.Modal(document.getElementById('moderationModal'));
+            modal.show();
+        });
+    });
+
+    document.querySelectorAll('.delete-company-btn').forEach(btn => {
+        btn.addEventListener('click', () => deleteUserViaEdgeFunction(btn.dataset.ownerid, btn.dataset.name, btn.dataset.email, 'company'));
+    });
+}
+
 
 async function loadStats() {
     try {

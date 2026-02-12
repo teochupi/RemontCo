@@ -198,6 +198,12 @@
     "load_error": "No pending ads found or an error occurred during loading.",
     "pending": "Pending",
     "verify": "Verify",
+    "filters": {
+      "all_statuses": "All Statuses",
+      "all_cities": "All Cities",
+      "search_placeholder": "Search (Name, UIC, City)...",
+      "reset": "Reset Filters"
+    },
     "table": {
       "company": "Company",
       "eik": "UIC/VAT",
@@ -232,7 +238,11 @@
     "confirm_delete_company": "WARNING: This will permanently delete the company, all its offers and associated user account!\n\nAre you sure?",
     "confirm_delete_user": "WARNING: This will permanently delete the user, all their job postings, offers and associated data!\n\nAre you sure?",
     "company_deleted": "Company and associated account deleted successfully.",
-    "user_deleted": "User and all associated data deleted successfully."
+    "user_deleted": "User and all associated data deleted successfully.",
+    "moderation_reason_label": "Reason for returning for revision:",
+    "moderation_reason_placeholder": "Describe what needs to be corrected...",
+    "moderation_reason_help": "The user will see this reason and will be able to make corrections.",
+    "return_for_revision": "Return for revision"
   },
   "demo": {
     "notice": "<strong>Demo Mode:</strong> You are browsing as a Demo User. You can explore all features, but you cannot post real ads or change settings.",
