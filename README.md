@@ -69,6 +69,31 @@ This creates a fair, legal, and professional marketplace that benefits:
 
 ---
 
+## 🗄️ Database Schema
+
+The project uses **Supabase (PostgreSQL)**. Key tables and relationships:
+
+### Core Entities
+*   **`profiles`**: Extends Supabase Auth. Stores user roles (`consumer`, `company`, `admin`), names, and contact info.
+*   **`companies`**: Business profiles linking to an owner (`profiles`). Includes verification status, EIK/UIC, `is_demo` flag, and details.
+*   **`company_members`**: Team members associated with a company.
+
+### Market Flow
+1.  **`jobs`**: Service requests created by consumers. Linked to `service_categories`. Includes `budget`, `deadline`, and `status`.
+2.  **`quotes`**: Offers sent by companies for specific jobs. Includes `price`, `timeline`, and `is_hidden` flags.
+3.  **`projects`**: Created when a quote is accepted. Tracks the active work, dates, and final price.
+
+### Features & Metadata
+*   **`reviews`**: Ratings and comments left by consumers after project completion.
+*   **`favorites`**: Companies' watchlist for interesting jobs.
+*   **`company_portfolio`**: Gallery of past work uploaded by companies.
+*   **`company_services`**: Many-to-many relationship linking companies to their offered services.
+*   **`messages`**: Internal messaging system between users.
+*   **`media`**: Centralized file storage metadata.
+*   **`service_categories`**: Hierarchical structure of services (e.g., Construction -> Painting).
+
+---
+
 ## 📋 Features
 
 ### Core Functionality
