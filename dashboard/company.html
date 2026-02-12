@@ -71,8 +71,9 @@
             <div class="card-body p-5 text-center">
               <i class="bi bi-building-add display-1 text-primary mb-4"></i>
               <h3 class="mb-3" data-i18n="dashboard_company.no_company_title">Нямате регистрирана фирма</h3>
-              <p class="text-muted mb-4" data-i18n="dashboard_company.no_company_desc">За да използвате фирменото табло, моля регистрирайте вашата фирма.</p>
-              
+              <p class="text-muted mb-4" data-i18n="dashboard_company.no_company_desc">За да използвате фирменото табло,
+                моля регистрирайте вашата фирма.</p>
+
               <form id="create-company-form" class="text-start mx-auto" style="max-width: 500px;">
                 <div class="mb-3">
                   <label for="new-company-name" class="form-label" data-i18n="company.name">Име на фирмата</label>
@@ -80,8 +81,8 @@
                 </div>
                 <div class="mb-3">
                   <label for="new-company-eik" class="form-label" data-i18n="company.eik">ЕИК / БУЛСТАТ</label>
-                  <input type="text" class="form-control" id="new-company-eik" required pattern="[0-9]{9,13}" 
-                         title="ЕИК трябва да е между 9 и 13 цифри">
+                  <input type="text" class="form-control" id="new-company-eik" required pattern="[0-9]{9,13}"
+                    title="ЕИК трябва да е между 9 и 13 цифри">
                 </div>
                 <div class="mb-3">
                   <label for="new-company-city" class="form-label" data-i18n="company.city">Град</label>
@@ -92,7 +93,8 @@
                   <input type="tel" class="form-control" id="new-company-phone">
                 </div>
                 <div class="mb-3">
-                  <label for="new-company-description" class="form-label" data-i18n="company.description">Описание</label>
+                  <label for="new-company-description" class="form-label"
+                    data-i18n="company.description">Описание</label>
                   <textarea class="form-control" id="new-company-description" rows="3"></textarea>
                 </div>
                 <div class="d-grid">
@@ -126,7 +128,8 @@
               <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2">
                 <i class="bi bi-funnel-fill me-1"></i>
                 <span id="city-filter-label"></span>
-                <button type="button" class="btn-close btn-close-sm ms-2" id="clear-city-filter" style="font-size: 0.6rem;"></button>
+                <button type="button" class="btn-close btn-close-sm ms-2" id="clear-city-filter"
+                  style="font-size: 0.6rem;"></button>
               </span>
             </div>
             <div id="available-jobs-list" class="row g-4">
@@ -171,39 +174,40 @@
 
           <!-- Settings Tab -->
           <div class="tab-pane fade" id="v-pills-profile" role="tabpanel">
-            <h2 class="h4 mb-4">Настройки на профила</h2>
+            <h2 class="h4 mb-4" data-i18n="dashboard_company.profile_settings_title">Настройки на профила</h2>
             <div class="card shadow-sm border-0 mb-4">
               <div class="card-body p-4">
                 <form id="company-profile-form">
                   <div class="row g-3">
                     <div class="col-md-6">
-                      <label class="form-label fw-bold">Име на фирмата</label>
+                      <label class="form-label fw-bold" data-i18n="company.name">Име на фирмата</label>
                       <input type="text" class="form-control" id="profile-company-name" required>
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label fw-bold">ЕИК / БУЛСТАТ</label>
+                      <label class="form-label fw-bold" data-i18n="company.eik">ЕИК / БУЛСТАТ</label>
                       <input type="text" class="form-control" id="profile-company-eik" readonly disabled>
-                      <div class="form-text">ЕИК не може да се променя след регистрация.</div>
+                      <div class="form-text" data-i18n="company.eik_readonly_hint">ЕИК не може да се променя след
+                        регистрация.</div>
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label fw-bold">Град</label>
+                      <label class="form-label fw-bold" data-i18n="company.city">Град</label>
                       <input type="text" class="form-control" id="profile-company-city" required>
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label fw-bold">Телефон</label>
+                      <label class="form-label fw-bold" data-i18n="company.phone">Телефон</label>
                       <input type="tel" class="form-control" id="profile-company-phone" required>
                     </div>
                     <div class="col-12">
-                      <label class="form-label fw-bold">Адрес</label>
+                      <label class="form-label fw-bold" data-i18n="company.address">Адрес</label>
                       <input type="text" class="form-control" id="profile-company-address" required>
                     </div>
                     <div class="col-12">
-                      <label class="form-label fw-bold">Уебсайт</label>
+                      <label class="form-label fw-bold" data-i18n="company.website">Уебсайт</label>
                       <input type="text" class="form-control" id="profile-company-website"
                         placeholder="www.example.com">
                     </div>
                     <div class="col-12">
-                      <label class="form-label fw-bold">Описание на дейността</label>
+                      <label class="form-label fw-bold" data-i18n="company.description">Описание на дейността</label>
                       <textarea class="form-control" id="profile-company-description" rows="4"></textarea>
                     </div>
                     <div class="col-12 mt-4">
@@ -240,29 +244,37 @@
       <div class="modal-content border-0 shadow-lg rounded-4">
         <form id="portfolio-form">
           <div class="modal-header bg-primary text-white p-4">
-            <h5 class="modal-title fw-bold">Добави проект в портфолио</h5>
+            <h5 class="modal-title fw-bold" data-i18n="company.add_portfolio_project">Добави проект в портфолио</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body p-4">
             <div class="mb-3">
-              <label class="form-label fw-bold">Заглавие на проекта</label>
+              <label class="form-label fw-bold" data-i18n="company.project_title">Заглавие на проекта</label>
               <input type="text" class="form-control" id="portfolio-title" placeholder="напр. Ремонт на баня - Младост"
                 required>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-bold">Описание</label>
+              <label class="form-label fw-bold" data-i18n="company.project_description">Описание</label>
               <textarea class="form-control" id="portfolio-description" rows="3"
                 placeholder="Кратко описание на извършената работа..."></textarea>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-bold">Снимка на проекта</label>
-              <input type="file" class="form-control" id="portfolio-image" accept="image/*" required>
-              <div class="form-text">Качете снимка (JPG, PNG). Макс. 5MB.</div>
+              <label class="form-label fw-bold" data-i18n="company.project_image">Снимка на проекта</label>
+              <div class="input-group">
+                <label class="input-group-text" for="portfolio-image" data-i18n="common.choose_file">Избери файл</label>
+                <input type="file" class="form-control d-none" id="portfolio-image" accept="image/*" required>
+                <input type="text" class="form-control bg-white" id="portfolio-image-filename"
+                  data-i18n-placeholder="common.no_file_chosen" readonly style="cursor: pointer;"
+                  onclick="document.getElementById('portfolio-image').click()">
+              </div>
+              <div class="form-text" data-i18n="company.upload_hint">Качете снимка (JPG, PNG). Макс. 5MB.</div>
             </div>
           </div>
           <div class="modal-footer border-0 p-4">
-            <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Отказ</button>
-            <button type="submit" class="btn btn-primary px-4 bg-gradient-primary">Добави Проект</button>
+            <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal"
+              data-i18n="common.cancel">Отказ</button>
+            <button type="submit" class="btn btn-primary px-4 bg-gradient-primary"
+              data-i18n="company.add_project_btn">Добави Проект</button>
           </div>
         </form>
       </div>
@@ -299,7 +311,8 @@
             </div>
             <div class="form-check mb-3">
               <input class="form-check-input" type="checkbox" id="offer-price-negotiable">
-              <label class="form-check-label" for="offer-price-negotiable" data-i18n="common.negotiable">По договаряне</label>
+              <label class="form-check-label" for="offer-price-negotiable" data-i18n="common.negotiable">По
+                договаряне</label>
             </div>
             <div class="mb-3">
               <label class="form-label fw-bold" data-i18n="offers.message_label">Съобщение до клиента</label>
@@ -312,7 +325,13 @@
             </div>
             <div class="mb-3">
               <label class="form-label fw-bold" data-i18n="offers.file_label">Прикачете документ (PDF, Word)</label>
-              <input type="file" class="form-control" id="offer-file" accept=".pdf,.doc,.docx">
+              <div class="input-group">
+                <label class="input-group-text" for="offer-file" data-i18n="common.choose_file">Избери файл</label>
+                <input type="file" class="form-control d-none" id="offer-file" accept=".pdf,.doc,.docx">
+                <input type="text" class="form-control bg-white" id="offer-file-filename"
+                  data-i18n-placeholder="common.no_file_chosen" readonly style="cursor: pointer;"
+                  onclick="document.getElementById('offer-file').click()">
+              </div>
               <div class="form-text small" data-i18n="offers.file_hint">Опционално: Можете да добавите детайлна оферта
                 или проект.</div>
             </div>
@@ -329,7 +348,8 @@
   </div>
 
   <!-- Change Password Modal -->
-  <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+  <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header bg-primary text-white border-0">
@@ -353,11 +373,13 @@
               <label for="newPasswordModal" class="form-label" data-i18n="auth.new_password">Нова парола</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                <input type="password" class="form-control" id="newPasswordModal" required minlength="6" data-i18n-placeholder="auth.password_placeholder">
+                <input type="password" class="form-control" id="newPasswordModal" required minlength="6"
+                  data-i18n-placeholder="auth.password_placeholder">
               </div>
             </div>
             <div class="mb-4">
-              <label for="confirmNewPassword" class="form-label" data-i18n="auth.confirm_new_password">Потвърди новата парола</label>
+              <label for="confirmNewPassword" class="form-label" data-i18n="auth.confirm_new_password">Потвърди новата
+                парола</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
                 <input type="password" class="form-control" id="confirmNewPassword" required minlength="6">

@@ -856,8 +856,13 @@ async function loadFavorites(isDemo = false) {
     }
 }
 
-async function toggleFavorite(jobId) {
+async function toggleFavorite(jobId, isDemo = false) {
     if (!currentCompany || !currentCompany.is_verified) return;
+
+    if (isDemo) {
+        showWarning(t('demo.demo_alert'));
+        return;
+    }
 
     try {
         // Check if already in favorites
@@ -870,11 +875,13 @@ async function toggleFavorite(jobId) {
 
         if (existing) {
             await supabase.from('favorites').delete().eq('id', existing.id);
+            showSuccess(t('messages.removed_from_watchlist'));
         } else {
             await supabase.from('favorites').insert({
                 company_id: currentCompany.id,
                 job_id: jobId
             });
+            showSuccess(t('messages.added_to_watchlist'));
         }
 
         // Refresh views
@@ -882,10 +889,26 @@ async function toggleFavorite(jobId) {
         await loadFavorites();
     } catch (err) {
         console.error('Error toggling favorite:', err);
+        showError(t('messages.generic_error'));
     }
 }
 
 function setupEventListeners(isDemo = false) {
+    // Custom File Input Handlers
+    ['portfolio-image', 'offer-file'].forEach(id => {
+        const input = document.getElementById(id);
+        const textInput = document.getElementById(`${id}-filename`);
+        if (input && textInput) {
+            input.addEventListener('change', () => {
+                if (input.files && input.files[0]) {
+                    textInput.value = input.files[0].name;
+                } else {
+                    textInput.value = '';
+                }
+            });
+        }
+    });
+
     const cityFilter = document.getElementById('city-filter');
     if (cityFilter) {
         cityFilter.addEventListener('change', () => {
@@ -947,7 +970,7 @@ function setupEventListeners(isDemo = false) {
             const favBtn = e.target.closest('.toggle-favorite-btn');
             if (favBtn) {
                 const jobId = favBtn.dataset.id;
-                await toggleFavorite(jobId);
+                await toggleFavorite(jobId, isDemo);
             }
         });
     }
@@ -977,7 +1000,8 @@ function setupEventListeners(isDemo = false) {
 
             if (removeBtn) {
                 const jobId = removeBtn.dataset.id;
-                await toggleFavorite(jobId);
+                // Wait for animation frame to ensure UI updates smoothly
+                await toggleFavorite(jobId, isDemo);
             }
 
             if (sendOfferBtn) {
@@ -1241,6 +1265,7 @@ function setupEventListeners(isDemo = false) {
     const logoutBtn = document.getElementById('logout-btn-settings');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
+            sessionStorage.setItem('logout_toast', 'true');
             await supabase.auth.signOut();
             window.location.href = '/index.html';
         });
@@ -1387,7 +1412,7 @@ async function loadPortfolio(isDemo = false) {
                     <div class="mb-3 text-muted opacity-25">
                         <i class="bi bi-images fs-1"></i>
                     </div>
-                    <p class="text-muted">Все още нямате добавени проекти в портфолиото.</p>
+                    <p class="text-muted">${t('company.no_portfolio')}</p>
                 </div>`;
             return;
         }
@@ -1400,7 +1425,7 @@ async function loadPortfolio(isDemo = false) {
                             <h6 class="fw-bold mb-1">${item.title}</h6>
                             <p class="text-muted small mb-3">${item.description || ''}</p>
                             <button class="btn btn-outline-danger btn-sm rounded-pill w-100 delete-portfolio-btn" data-id="${item.id}">
-                                <i class="bi bi-trash3 me-1"></i> Изтрий
+                                <i class="bi bi-trash3 me-1"></i> ${t('company.delete_project')}
                             </button>
                     </div>
                 </div>

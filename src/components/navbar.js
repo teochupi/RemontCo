@@ -6,13 +6,19 @@
 import { isAuthenticated, hasRole } from '../utils/guards.js';
 import { supabase, getCurrentUser, signOut } from '../services/supabase.js';
 import { t, switchLanguage, getCurrentLanguage } from '../utils/i18n.js';
-import { showError } from '../utils/toast.js';
+import { showError, showSuccess } from '../utils/toast.js';
 
 /**
  * Render navigation bar
  * @param {HTMLElement} container - Container to render navbar into
  */
 export async function renderNavbar(container, options = {}) {
+  // Check for logout message
+  if (sessionStorage.getItem('logout_toast')) {
+    showSuccess(t('messages.logout_success'));
+    sessionStorage.removeItem('logout_toast');
+  }
+
   const isForceGuest = options.forceGuest || false;
   const authenticated = isForceGuest ? false : await isAuthenticated();
   const user = authenticated ? await getCurrentUser() : null;
@@ -134,6 +140,7 @@ function setupNavbarListeners(navbar) {
     logoutBtn.addEventListener('click', async (e) => {
       e.preventDefault();
       try {
+        sessionStorage.setItem('logout_toast', 'true');
         await signOut();
       } catch (error) {
         console.error('Logout error:', error);

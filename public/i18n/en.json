@@ -289,7 +289,8 @@
     "verification_required_desc": "Job listings from users will become available here once your company profile has been verified by an administrator. This process usually takes up to 24 hours.",
     "verification_step_1": "Registration",
     "verification_step_2": "Admin review",
-    "verification_step_3": "Full access"
+    "verification_step_3": "Full access",
+    "profile_settings_title": "Profile Settings"
   },
   "job_form": {
     "title": "Project Title",
@@ -349,7 +350,22 @@
     "not_available": "Not available",
     "contact_button": "Send Inquiry",
     "contact_modal_title": "Send Inquiry",
-    "contact_modal_desc": "Fill out the form below to send a message directly to"
+    "contact_modal_desc": "Fill out the form below to send a message directly to",
+    "project_image": "Project Image",
+    "name": "Company Name",
+    "eik": "UIC / BULSTAT",
+    "city": "City",
+    "phone": "Phone",
+    "address": "Address",
+    "description": "Description",
+    "add_project": "Add Project",
+    "add_portfolio_project": "Add Portfolio Project",
+    "project_title": "Project Title",
+    "project_description": "Description",
+    "upload_hint": "Upload image (JPG, PNG). Max 5MB.",
+    "add_project_btn": "Add Project",
+    "eik_readonly_hint": "UIC cannot be changed after registration.",
+    "delete_project": "Delete"
   },
   "offers": {
     "send_offer": "Send Offer",
@@ -433,7 +449,9 @@
     "close": "Close",
     "no_results": "No results found",
     "currency_eur": "EUR",
-    "not_specified": "Not specified"
+    "not_specified": "Not specified",
+    "choose_file": "Choose File",
+    "no_file_chosen": "No file chosen"
   },
   "messages": {
     "login_success": "Successfully logged in",
@@ -485,7 +503,10 @@
     "rate_limit_error": "For security purposes, please wait a few seconds before trying again.",
     "invalid_image": "Please upload a valid image.",
     "file_too_large": "File size must be less than 5MB.",
-    "upload_failed": "Avatar upload failed."
+    "upload_failed": "Avatar upload failed.",
+    "added_to_watchlist": "Job added to watchlist!",
+    "removed_from_watchlist": "Job removed from watchlist!",
+    "logout_success": "Successfully logged out."
   },
   "form": {
     "name": "Name",
