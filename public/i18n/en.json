@@ -133,7 +133,7 @@
     "register_company": "Register as Company",
     "account_settings": "Login Details",
     "company_name": "Company Name",
-    "eik": "EIK/BULSTAT",
+    "eik": "UIC / BULSTAT",
     "eik_hint": "9-13 digits",
     "address": "Address",
     "city": "City",
