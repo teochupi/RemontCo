@@ -84,7 +84,6 @@ The project uses **Supabase (PostgreSQL)**. Key tables and relationships:
 3.  **`projects`**: Created when a quote is accepted. Tracks the active work, dates, and final price.
 
 ### Features & Metadata
-*   **`reviews`**: Ratings and comments left by consumers after project completion.
 *   **`favorites`**: Companies' watchlist for interesting jobs.
 *   **`company_portfolio`**: Gallery of past work uploaded by companies.
 *   **`company_services`**: Many-to-many relationship linking companies to their offered services.
